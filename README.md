@@ -2,7 +2,7 @@
 
 Ticketing System for War Games
 
-# Members
+## Members
 
 - DodgeRich14
 - Kaiketsuuu
