@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticketing System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Ticketing Dashboard</h1>
+
+    <div class="container">
+        <!-- LEFT: Ticket List -->
+        <div class="ticket-list">
+            <h2>All Tickets</h2>
+            <button id="refreshBtn">Refresh Tickets</button>
+            <ul id="tickets"></ul>
+        </div>
+
+        <!-- RIGHT: Ticket Details + Logs -->
+        <div class="ticket-details">
+            <h2>Ticket Details</h2>
+            <div id="ticketInfo">
+                <p>Select a ticket to view details.</p>
+            </div>
+
+            <h3>Logs / Comments</h3>
+            <div id="comments"></div>
+
+            <h3>Add Update / Log</h3>
+            <form id="commentForm">
+                <label>Status:</label>
+                <select id="current_status" required>
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                </select>
+
+                <label>Message:</label>
+                <textarea id="message" required></textarea>
+
+                <button type="submit">Post Update</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
