@@ -1,142 +1,206 @@
-const API_BASE = '/api';
+const API_BASE = "/api";
 
-let selectedTicketId = null;
+// Load tickets on page load
+document.addEventListener("DOMContentLoaded", () => {
+    fetchTickets();
+});
+
+// =========================
+// CREATE TICKET
+// =========================
+document.getElementById("ticketForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = {
+        title: document.getElementById("title").value,
+        description: document.getElementById("description").value,
+        requested_by: document.getElementById("requested_by").value,
+        priority: document.getElementById("priority").value,
+        urgency: document.getElementById("urgency").value
+    };
+
+    await fetch(`${API_BASE}/tickets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    e.target.reset();
+    fetchTickets();
+});
 
 // =========================
 // FETCH ALL TICKETS
 // =========================
 async function fetchTickets() {
-    try {
-        const res = await fetch(`${API_BASE}/tickets`);
-        const tickets = await res.json();
+    const res = await fetch(`${API_BASE}/tickets`);
+    const tickets = await res.json();
 
-        const ticketList = document.getElementById('tickets');
-        ticketList.innerHTML = '';
+    const container = document.getElementById("ticketsContainer");
+    container.innerHTML = "";
 
-        tickets.forEach(ticket => {
-            const li = document.createElement('li');
-            li.className = 'ticket-item';
-            li.textContent = `#${ticket.ticket_id} - ${ticket.title} [${ticket.status}]`;
+    tickets.forEach(ticket => {
+        const ticketDiv = document.createElement("div");
+        ticketDiv.className = "ticket-card";
 
-            li.addEventListener('click', () => {
-                loadTicketDetails(ticket.ticket_id);
-            });
+        ticketDiv.innerHTML = `
+            <h3>${ticket.title}</h3>
+            <p><strong>Status:</strong> ${ticket.status}</p>
+            <p><strong>Priority:</strong> ${ticket.priority}</p>
+            <p><strong>Urgency:</strong> ${ticket.urgency}</p>
+            <p><strong>Assigned To:</strong> ${ticket.assigned_to || "Unassigned"}</p>
+            <p><strong>Requested By:</strong> ${ticket.requested_by}</p>
 
-            ticketList.appendChild(li);
-        });
+            <button onclick="toggleDetails(${ticket.ticket_id})">
+                Show Details
+            </button>
 
-    } catch (err) {
-        console.error('Error fetching tickets:', err);
+            <div id="details-${ticket.ticket_id}" class="details" style="display:none;">
+                <p><strong>Description:</strong> ${ticket.description || "No description"}</p>
+
+                <h4>Update Ticket</h4>
+                <input type="text" id="assigned-${ticket.ticket_id}" placeholder="Assign to (name)" />
+                
+                <select id="status-${ticket.ticket_id}">
+                    <option value="">-- Change Status --</option>
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                </select>
+
+                <button onclick="updateTicket(${ticket.ticket_id})">
+                    Save Update
+                </button>
+
+                <h4>Logs / Comments</h4>
+                <div id="comments-${ticket.ticket_id}">Loading comments...</div>
+
+                <textarea id="comment-msg-${ticket.ticket_id}" placeholder="Write a log/update"></textarea>
+                <select id="comment-status-${ticket.ticket_id}">
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                </select>
+
+                <button onclick="addComment(${ticket.ticket_id})">
+                    Add Log
+                </button>
+                <button onclick="deleteTicket(${ticket.ticket_id})" style="background-color:#e74c3c; color:white;">
+                    Delete Ticket
+                </button>
+            </div>
+        `;
+
+        container.appendChild(ticketDiv);
+    });
+}
+
+// =========================
+// TOGGLE DETAILS + LOAD COMMENTS
+// =========================
+async function toggleDetails(ticketId) {
+    const div = document.getElementById(`details-${ticketId}`);
+
+    if (div.style.display === "none") {
+        div.style.display = "block";
+        await loadComments(ticketId);
+    } else {
+        div.style.display = "none";
     }
 }
 
 // =========================
-// LOAD SINGLE TICKET + COMMENTS
+// LOAD COMMENTS
 // =========================
-async function loadTicketDetails(ticketId) {
-    try {
-        selectedTicketId = ticketId;
+async function loadComments(ticketId) {
+    const res = await fetch(`${API_BASE}/tickets/${ticketId}`);
+    const data = await res.json();
 
-        const res = await fetch(`${API_BASE}/tickets/${ticketId}`);
-        const data = await res.json();
+    const commentsDiv = document.getElementById(`comments-${ticketId}`);
+    commentsDiv.innerHTML = "";
 
-        renderTicketInfo(data.ticket);
-        renderComments(data.comments);
-
-    } catch (err) {
-        console.error('Error loading ticket:', err);
-    }
-}
-
-// =========================
-// RENDER TICKET INFO
-// =========================
-function renderTicketInfo(ticket) {
-    const container = document.getElementById('ticketInfo');
-
-    container.innerHTML = `
-        <p><strong>ID:</strong> ${ticket.ticket_id}</p>
-        <p><strong>Title:</strong> ${ticket.title}</p>
-        <p><strong>Description:</strong> ${ticket.description || 'N/A'}</p>
-        <p><strong>Requested By:</strong> ${ticket.requested_by}</p>
-        <p><strong>Status:</strong> ${ticket.status}</p>
-        <p><strong>Priority:</strong> ${ticket.priority}</p>
-        <p><strong>Urgency:</strong> ${ticket.urgency}</p>
-        <p><strong>Assigned To:</strong> ${ticket.assigned_to || 'Unassigned'}</p>
-        <p><strong>Created At:</strong> ${ticket.created_at}</p>
-    `;
-}
-
-// =========================
-// RENDER COMMENTS / LOGS
-// =========================
-function renderComments(comments) {
-    const container = document.getElementById('comments');
-    container.innerHTML = '';
-
-    if (comments.length === 0) {
-        container.innerHTML = '<p>No logs yet.</p>';
+    if (data.comments.length === 0) {
+        commentsDiv.innerHTML = "<p>No logs yet.</p>";
         return;
     }
 
-    comments.forEach(comment => {
-        const div = document.createElement('div');
-        div.className = 'comment-card';
-
-        div.innerHTML = `
+    data.comments.forEach(comment => {
+        const c = document.createElement("div");
+        c.className = "comment";
+        c.innerHTML = `
             <p><strong>Status:</strong> ${comment.current_status}</p>
             <p>${comment.message}</p>
             <small>${comment.created_at}</small>
             <hr/>
         `;
-
-        container.appendChild(div);
+        commentsDiv.appendChild(c);
     });
 }
 
 // =========================
-// POST NEW COMMENT / LOG
+// UPDATE TICKET (STATUS + ASSIGNED PERSON)
 // =========================
-async function postComment(event) {
-    event.preventDefault();
+async function updateTicket(ticketId) {
+    const assigned_to = document.getElementById(`assigned-${ticketId}`).value;
+    const status = document.getElementById(`status-${ticketId}`).value;
 
-    if (!selectedTicketId) {
-        alert('Please select a ticket first.');
-        return;
-    }
+    const body = {};
+    if (assigned_to) body.assigned_to = assigned_to;
+    if (status) body.status = status;
 
-    const message = document.getElementById('message').value;
-    const current_status = document.getElementById('current_status').value;
+    await fetch(`${API_BASE}/tickets/${ticketId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
 
-    try {
-        const res = await fetch(`${API_BASE}/tickets/${selectedTicketId}/comments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message,
-                current_status
-            })
-        });
-
-        if (!res.ok) {
-            throw new Error('Failed to post comment');
-        }
-
-        document.getElementById('message').value = '';
-        await loadTicketDetails(selectedTicketId);
-
-    } catch (err) {
-        console.error('Error posting comment:', err);
-    }
+    fetchTickets();
 }
 
 // =========================
-// EVENT LISTENERS
+// ADD COMMENT / LOG
 // =========================
-document.getElementById('refreshBtn').addEventListener('click', fetchTickets);
-document.getElementById('commentForm').addEventListener('submit', postComment);
+async function addComment(ticketId) {
+    const message = document.getElementById(`comment-msg-${ticketId}`).value;
+    const current_status = document.getElementById(`comment-status-${ticketId}`).value;
 
-// Initial load
-fetchTickets();
+    if (!message) {
+        alert("Message is required");
+        return;
+    }
+
+    await fetch(`${API_BASE}/tickets/${ticketId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, current_status })
+    });
+
+    document.getElementById(`comment-msg-${ticketId}`).value = "";
+    await loadComments(ticketId);
+}
+
+// =========================
+// DELETE TICKET
+// =========================
+async function deleteTicket(ticketId) {
+    const confirmDelete = confirm("Are you sure you want to delete this ticket and all its logs?");
+    if (!confirmDelete) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/tickets/${ticketId}`, {
+            method: "DELETE"
+        });
+
+        if (!res.ok) {
+            throw new Error("Failed to delete ticket");
+        }
+
+        alert("Ticket deleted successfully.");
+        fetchTickets();
+    } catch (err) {
+        console.error(err);
+        alert("Error deleting ticket.");
+    }
+}

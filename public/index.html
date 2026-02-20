@@ -2,48 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticketing System</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Ticketing Dashboard</h1>
+    <h1>Ticketing System</h1>
 
-    <div class="container">
-        <!-- LEFT: Ticket List -->
-        <div class="ticket-list">
-            <h2>All Tickets</h2>
-            <button id="refreshBtn">Refresh Tickets</button>
-            <ul id="tickets"></ul>
-        </div>
+    <!-- CREATE TICKET FORM -->
+    <section class="create-ticket">
+        <h2>Create Ticket</h2>
+        <form id="ticketForm">
+            <input type="text" id="title" placeholder="Title" required />
+            <input type="text" id="requested_by" placeholder="Requested By" required />
+            <textarea id="description" placeholder="Description"></textarea>
 
-        <!-- RIGHT: Ticket Details + Logs -->
-        <div class="ticket-details">
-            <h2>Ticket Details</h2>
-            <div id="ticketInfo">
-                <p>Select a ticket to view details.</p>
-            </div>
+            <select id="priority">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+                <option value="Urgent">Urgent</option>
+            </select>
 
-            <h3>Logs / Comments</h3>
-            <div id="comments"></div>
+            <select id="urgency">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+                <option value="Urgent">Urgent</option>
+            </select>
 
-            <h3>Add Update / Log</h3>
-            <form id="commentForm">
-                <label>Status:</label>
-                <select id="current_status" required>
-                    <option value="Open">Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Resolved">Resolved</option>
-                    <option value="Closed">Closed</option>
-                </select>
+            <button type="submit">Create Ticket</button>
+        </form>
+    </section>
 
-                <label>Message:</label>
-                <textarea id="message" required></textarea>
-
-                <button type="submit">Post Update</button>
-            </form>
-        </div>
-    </div>
+    <!-- TICKETS LIST -->
+    <section>
+        <h2>All Tickets</h2>
+        <div id="ticketsContainer"></div>
+    </section>
 
     <script src="app.js"></script>
 </body>
