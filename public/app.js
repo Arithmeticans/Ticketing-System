@@ -1,6 +1,8 @@
 const API_BASE = "/api";
 
+// =========================
 // Load tickets on page load
+// =========================
 document.addEventListener("DOMContentLoaded", () => {
     fetchTickets();
 });
@@ -73,6 +75,10 @@ async function fetchTickets() {
                     Save Update
                 </button>
 
+                <button onclick='openEditTicket(${JSON.stringify(ticket).replace(/"/g,'&quot;')})'>
+                    Edit Ticket
+                </button>
+
                 <h4>Logs / Comments</h4>
                 <div id="comments-${ticket.ticket_id}">Loading comments...</div>
 
@@ -133,6 +139,9 @@ async function loadComments(ticketId) {
             <p><strong>Status:</strong> ${comment.current_status}</p>
             <p>${comment.message}</p>
             <small>${comment.created_at}</small>
+            <button onclick='openEditComment(${ticketId}, ${JSON.stringify(comment).replace(/"/g,'&quot;')})'>
+                Edit
+            </button>
             <hr/>
         `;
         commentsDiv.appendChild(c);
@@ -204,3 +213,122 @@ async function deleteTicket(ticketId) {
         alert("Error deleting ticket.");
     }
 }
+
+// =========================
+// MODAL POPUP FOR EDITING TICKETS & COMMENTS
+// =========================
+const modal = document.getElementById("editModal");
+const closeModal = document.getElementById("closeModal");
+const editForm = document.getElementById("editForm");
+const editFields = document.getElementById("editFields");
+let currentEdit = null;
+
+closeModal.onclick = () => {
+    modal.style.display = "none";
+    currentEdit = null;
+};
+window.onclick = (e) => {
+    if (e.target === modal) modal.style.display = "none";
+};
+
+// =========================
+// OPEN EDIT TICKET MODAL
+// =========================
+function openEditTicket(ticket) {
+    currentEdit = { type: "ticket", ticketId: ticket.ticket_id };
+
+    editFields.innerHTML = `
+        <label>Title</label>
+        <input type="text" name="title" value="${ticket.title}" required />
+
+        <label>Description</label>
+        <textarea name="description">${ticket.description || ""}</textarea>
+
+        <label>Assigned To</label>
+        <input type="text" name="assigned_to" value="${ticket.assigned_to || ""}" />
+
+        <label>Status</label>
+        <select name="status">
+            <option value="">-- Keep current --</option>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Closed">Closed</option>
+        </select>
+
+        <label>Priority</label>
+        <select name="priority">
+            <option value="">-- Keep current --</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Urgent">Urgent</option>
+        </select>
+
+        <label>Urgency</label>
+        <select name="urgency">
+            <option value="">-- Keep current --</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Urgent">Urgent</option>
+        </select>
+    `;
+
+    document.getElementById("modalTitle").innerText = `Edit Ticket #${ticket.ticket_id}`;
+    modal.style.display = "block";
+}
+
+// =========================
+// OPEN EDIT COMMENT MODAL
+// =========================
+function openEditComment(ticketId, comment) {
+    currentEdit = { type: "comment", ticketId, commentId: comment.comment_id };
+
+    editFields.innerHTML = `
+        <label>Message</label>
+        <textarea name="message" required>${comment.message}</textarea>
+
+        <label>Status</label>
+        <select name="current_status">
+            <option value="Open" ${comment.current_status==='Open'?'selected':''}>Open</option>
+            <option value="In Progress" ${comment.current_status==='In Progress'?'selected':''}>In Progress</option>
+            <option value="Resolved" ${comment.current_status==='Resolved'?'selected':''}>Resolved</option>
+            <option value="Closed" ${comment.current_status==='Closed'?'selected':''}>Closed</option>
+        </select>
+    `;
+
+    document.getElementById("modalTitle").innerText = `Edit Log #${comment.comment_id}`;
+    modal.style.display = "block";
+}
+
+// =========================
+// SUBMIT MODAL FORM
+// =========================
+editForm.onsubmit = async (e) => {
+    e.preventDefault();
+    if (!currentEdit) return;
+
+    const formData = new FormData(editForm);
+    const body = {};
+    formData.forEach((v,k)=>{ if(v) body[k] = v });
+
+    if (currentEdit.type === "ticket") {
+        await fetch(`${API_BASE}/tickets/${currentEdit.ticketId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+        fetchTickets();
+    } else if (currentEdit.type === "comment") {
+        await fetch(`${API_BASE}/tickets/${currentEdit.ticketId}/comments/${currentEdit.commentId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+        await loadComments(currentEdit.ticketId);
+    }
+
+    modal.style.display = "none";
+    currentEdit = null;
+};

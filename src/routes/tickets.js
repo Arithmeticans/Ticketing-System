@@ -3,7 +3,6 @@ import db from '../db.js';
 
 const router = express.Router();
 
-
 // =========================
 // CREATE A TICKET
 // =========================
@@ -45,7 +44,6 @@ router.post('/tickets', (req, res) => {
     }
 });
 
-
 // =========================
 // GET ALL TICKETS
 // =========================
@@ -62,7 +60,6 @@ router.get('/tickets', (req, res) => {
         return res.status(500).json({ error: 'Failed to fetch tickets' });
     }
 });
-
 
 // =========================
 // GET SINGLE TICKET + COMMENTS
@@ -96,7 +93,6 @@ router.get('/tickets/:id', (req, res) => {
     }
 });
 
-
 // =========================
 // UPDATE TICKET STATUS / ASSIGNMENT
 // =========================
@@ -112,11 +108,13 @@ router.put('/tickets/:id', (req, res) => {
             return res.status(400).json({ error: 'Invalid ticket ID' });
         }
 
-        const { status, assigned_to, priority, urgency } = req.body;
+        const { title, description, status, assigned_to, priority, urgency } = req.body;
 
         const stmt = db.prepare(`
             UPDATE tickets
             SET 
+                title = COALESCE(?, title),
+                description = COALESCE(?, description),
                 status = COALESCE(?, status),
                 assigned_to = COALESCE(?, assigned_to),
                 priority = COALESCE(?, priority),
@@ -126,6 +124,8 @@ router.put('/tickets/:id', (req, res) => {
         `);
 
         const result = stmt.run(
+            title ?? null,
+            description ?? null,
             status ?? null,
             assigned_to ?? null,
             priority ?? null,
@@ -144,6 +144,52 @@ router.put('/tickets/:id', (req, res) => {
     }
 });
 
+// =========================
+// UPDATE COMMENT / LOG
+// =========================
+router.put('/tickets/:ticketId/comments/:commentId', (req, res) => {
+    try {
+        if (!req.body) return res.status(400).json({ error: 'Request body must be JSON.' });
+
+        const ticketId = Number(req.params.ticketId);
+        const commentId = Number(req.params.commentId);
+
+        if (Number.isNaN(ticketId) || Number.isNaN(commentId)) {
+            return res.status(400).json({ error: 'Invalid ID' });
+        }
+
+        const { message, current_status } = req.body;
+
+        if (!message && !current_status) {
+            return res.status(400).json({ error: 'At least message or current_status required.' });
+        }
+
+        const stmt = db.prepare(`
+            UPDATE ticket_comments
+            SET 
+                message = COALESCE(?, message),
+                current_status = COALESCE(?, current_status)
+            WHERE comment_id = ? AND ticket_id = ?
+        `);
+
+        const result = stmt.run(
+            message ?? null,
+            current_status ?? null,
+            commentId,
+            ticketId
+        );
+
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+
+        return res.json({ message: 'Comment updated successfully' });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to update comment' });
+    }
+});
 
 // =========================
 // ADD COMMENT TO TICKET

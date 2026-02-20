@@ -40,6 +40,43 @@
         <div id="ticketsContainer"></div>
     </section>
 
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <h3 id="modalTitle">Edit</h3>
+            <form id="editForm">
+                <div id="editFields"></div>
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <style>
+    .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 20px;
+        width: 400px;
+        border-radius: 8px;
+        position: relative;
+    }
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        cursor: pointer;
+    }
+    </style>
     <script src="app.js"></script>
 </body>
 </html>
