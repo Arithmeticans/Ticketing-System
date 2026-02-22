@@ -1,0 +1,347 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: rgb(207, 207, 255);
+    height: auto;
+}
+
+h1, h2, h3, h4, h5, h6, p, small, strong, button, input, select, label {
+    font-family: "Century Gothic", CenturyGothic, Geneva, AppleGothic, sans-serif;
+}
+
+button, input, select {
+    border-radius: 15px;
+    cursor: pointer;
+    height: 30px;
+    width: 160px;
+}
+
+button {
+    background-color: rgb(81, 133, 176);
+    color: #fff;
+    border: none;
+}
+
+button:hover {
+    opacity: 0.8;
+    box-shadow: 0px 5px 5px rgba(165, 156, 156, 0.8);
+}
+
+input {
+    padding-left: 10px;
+}
+
+select {
+    padding-left: 10px;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    background-color: rgb(5, 48, 84);
+    height: 100px;
+    -webkit-animation: appear 0.8s ;
+    animation: appear 0.8s ;
+}
+
+.header img {
+    margin-top: 14px;
+    margin-left: 15px;
+}
+
+.header h2 {
+    color: #d4d4d4;
+    margin-top: 34px;
+    margin-left: 5px;
+}
+
+@keyframes appear {
+    0% {opacity:0;}
+    50% {opacity:0;}
+    100% {opacity:1;}
+}
+
+.create-ticket {
+    background-color: rgb(237, 237, 255);
+    padding-top: 25px;
+    padding-bottom: 25px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    height: auto; 
+    width: 1750px;
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    -webkit-animation: appear 1s ;
+    animation: appear 1s ;
+}
+
+.create-ticket h2 {
+    margin-top: 0;
+}
+
+.create-ticket input {
+    width: 335px;
+}
+
+.tickets-container {
+    background-color: rgb(237, 237, 255);
+    padding-top: 25px;
+    padding-bottom: 25px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    height: auto; 
+    width: 1750px;
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    -webkit-animation: appear 1.2s ;
+    animation: appear 1.2s ;
+}
+
+.tickets-container h2 {
+    margin-top: 0;
+    margin-left: 50px;
+}
+
+.ticket-card {
+    display: grid;
+    align-items: center;
+    justify-content: center;
+}
+
+.ticket-card-table {
+    border-collapse: separate;
+    border: 1px solid #22245a;
+    border-radius: 10px;
+}
+
+.ticket-card-table td {
+    border-radius: 10px;
+    width: 200px;
+    max-width: 200px;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.ticket-card-table tr, .ticket-card-table td {
+    text-align: center;
+    vertical-align: middle;
+    width: 200px;
+    height: 50px;
+}
+
+.ticket-card-table td:hover {
+    opacity: 0.8;
+    box-shadow: 0px 5px 10px rgba(65, 62, 62, 0.8);
+}
+
+.ticket-card-table-headers {
+    border-collapse: separate;
+    border: 1px solid #22245a;
+    border-radius: 10px;
+}
+
+.ticket-card-table-headers th {
+    background-color: rgb(58, 97, 130);
+    color: #fff;
+    text-align: center;
+    vertical-align: middle;
+    width: 200px;
+    height: 50px;
+}
+
+.ticket-card-table-headers th:first-child {
+    border-radius: 10px 0 0 10px;
+}
+
+.ticket-card-table-headers th:last-child {
+    border-radius: 0 10px 10px 0;
+}
+
+.ticket-card-table-headers th:hover {
+    opacity: 0.8;
+    box-shadow: 0px 5px 10px rgba(65, 62, 62, 0.8);
+}
+
+.low {
+    background-color: #2ecc71;
+    color: rgb(0, 0, 0);
+}
+
+.medium {
+    background-color: #f3e812;
+    color: rgb(0, 0, 0);
+}
+
+.high {
+    background-color: #e67e22;
+    color: rgb(0, 0, 0);
+}
+
+.urgent {
+    background-color: #e74c3c;
+    color: rgb(0, 0, 0);
+}
+
+.details {
+    border: 1px solid #22245a;
+    border-radius: 10px;
+    background-color: rgb(81, 133, 176);
+    padding-top: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    color: #fff;
+    width: 1595px;
+    height: auto;
+    max-width: 1595px;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.details button {
+    background-color: #22245a;
+}
+
+.details input {
+    width: 335px;
+}
+
+.comments-table {
+    border-collapse: separate;
+    border: 1px solid #22245a;
+    border-radius: 10px;
+    margin-top: 10px;
+    table-layout: fixed;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 15px;
+}
+
+.comments-table td {
+    border-radius: 10px;
+    width: 375px;
+    max-width: 375px;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.comments-table tr {
+    border: 1px solid #22245a;
+    border-radius: 10px;
+}
+
+.comments-table tr, .comments-table td {
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #22245a;
+    border-radius: 10px;
+    width: 375px;
+    height: 50px;
+}
+
+.comments-table td:hover {
+    opacity: 0.8;
+    box-shadow: 0px 5px 10px rgba(65, 62, 62, 0.8);
+}
+
+.comments-table th {
+    background-color: rgb(58, 97, 130);
+    color: #fff;
+    text-align: center;
+    vertical-align: middle;
+    width: 375px;
+    height: 50px;
+}
+
+.comments-table th {
+    border: 1px solid #22245a;
+    border-radius: 10px;
+}
+
+.comments-table th:hover {
+    opacity: 0.8;
+    box-shadow: 0px 5px 10px rgba(65, 62, 62, 0.8);
+}
+
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    -webkit-animation: appear 0.6s ;
+    animation: appear 0.6s ;
+}
+    
+.modal-content {
+    background-color: rgb(207, 207, 255);
+    margin: 10% auto;
+    padding: 20px;
+    width: 400px;
+    border-radius: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;  
+    -webkit-animation: appear 0.6s ;
+    animation: appear 0.6s ;
+}
+
+#editForm {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    -webkit-animation: appear 1.0s ;
+    animation: appear 1.0s ;
+}
+
+#editFields {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    -webkit-animation: appear 1.0s ;
+    animation: appear 1.0s ;
+}
+
+#editForm input, #editForm select, #editForm button {
+    width: 200px;
+}
+
+#modalTitle {
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(5, 48, 84);
+    color: white;
+    height: 100px;
+    -webkit-animation: appear 1.4s;
+    animation: appear 1.4s;
+}

@@ -3,29 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>Ticketing System</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
-    <h1>Ticketing System</h1>
-
+    <section class="header">
+        <img src = "logo.png" style="width:70px;height:70px;">
+        <h2>Arithmeticans Ticketing System</h2>
+    </section>
+    
     <!-- CREATE TICKET FORM -->
     <section class="create-ticket">
         <h2>Create Ticket</h2>
         <form id="ticketForm">
             <input type="text" id="title" placeholder="Title" required />
             <input type="text" id="requested_by" placeholder="Requested By" required />
-            <textarea id="description" placeholder="Description"></textarea>
+            <input type="text" id="description" placeholder="Description" />
 
             <select id="priority">
+                <option value="" selected disabled>-- Priority level --</option>
                 <option value="Low">Low</option>
-                <option value="Medium" selected>Medium</option>
+                <option value="Medium">Medium</option>
                 <option value="High">High</option>
                 <option value="Urgent">Urgent</option>
             </select>
 
             <select id="urgency">
+                <option value="" selected disabled>-- Urgency level --</option>
                 <option value="Low">Low</option>
-                <option value="Medium" selected>Medium</option>
+                <option value="Medium">Medium</option>
                 <option value="High">High</option>
                 <option value="Urgent">Urgent</option>
             </select>
@@ -35,8 +41,20 @@
     </section>
 
     <!-- TICKETS LIST -->
-    <section>
+    <section class="tickets-container">
         <h2>All Tickets</h2>
+        <table class ="ticket-card-table-headers">
+            <tr>
+                <th><strong>Ticket ID</strong></th>
+                <th><strong>Title</strong></th>
+                <th><strong>Requested By</strong></th>
+                <th><strong>Assigned To</strong></th>
+                <th><strong>Priority</strong></th>
+                <th><strong>Urgency</strong></th>
+                <th><strong>Status</strong></th>
+                <th><strong>Details</strong></th>
+            </tr>
+        </table>
         <div id="ticketsContainer"></div>
     </section>
 
@@ -52,31 +70,10 @@
         </div>
     </div>
 
-    <style>
-    .modal {
-        position: fixed;
-        z-index: 1000;
-        left: 0; top: 0;
-        width: 100%; height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.5);
-    }
-    .modal-content {
-        background-color: #fefefe;
-        margin: 10% auto;
-        padding: 20px;
-        width: 400px;
-        border-radius: 8px;
-        position: relative;
-    }
-    .close {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 24px;
-        cursor: pointer;
-    }
-    </style>
     <script src="app.js"></script>
+
+    <section class="footer">
+        <strong>© 2026 Arithmeticans. All Rights Reserved</strong>
+    </section>
 </body>
 </html>

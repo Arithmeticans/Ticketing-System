@@ -46,16 +46,22 @@ async function fetchTickets() {
         ticketDiv.className = "ticket-card";
 
         ticketDiv.innerHTML = `
-            <h3>${ticket.title}</h3>
-            <p><strong>Status:</strong> ${ticket.status}</p>
-            <p><strong>Priority:</strong> ${ticket.priority}</p>
-            <p><strong>Urgency:</strong> ${ticket.urgency}</p>
-            <p><strong>Assigned To:</strong> ${ticket.assigned_to || "Unassigned"}</p>
-            <p><strong>Requested By:</strong> ${ticket.requested_by}</p>
-
-            <button onclick="toggleDetails(${ticket.ticket_id})">
-                Show Details
-            </button>
+            <table class ="ticket-card-table">
+                <tr>
+                    <td><strong>${ticket.ticket_id}</strong></td>
+                    <td><p>${ticket.title}</p></td>
+                    <td><p>${ticket.requested_by}</p></td>
+                    <td><p>${ticket.assigned_to || "Unassigned"}</p></td>
+                    <td class="priority ${ticket.priority?.toLowerCase()}"><p>${ticket.priority}</p></td>
+                    <td class="urgency ${ticket.urgency?.toLowerCase()}"><p>${ticket.urgency}</p></td>
+                    <td><strong>${ticket.status}</strong></td>
+                    <td>
+                        <button class="show-details-button" onclick="toggleDetails(${ticket.ticket_id})">
+                            Show Details
+                        </button>
+                    </td>
+                </tr>
+            </table>
 
             <div id="details-${ticket.ticket_id}" class="details" style="display:none;">
                 <p><strong>Description:</strong> ${ticket.description || "No description"}</p>
@@ -64,7 +70,7 @@ async function fetchTickets() {
                 <input type="text" id="assigned-${ticket.ticket_id}" placeholder="Assign to (name)" />
                 
                 <select id="status-${ticket.ticket_id}">
-                    <option value="">-- Change Status --</option>
+                    <option value="" selected disabled>-- Change status --</option>
                     <option value="Open">Open</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Resolved">Resolved</option>
@@ -80,10 +86,9 @@ async function fetchTickets() {
                 </button>
 
                 <h4>Logs / Comments</h4>
-                <div id="comments-${ticket.ticket_id}">Loading comments...</div>
-
-                <textarea id="comment-msg-${ticket.ticket_id}" placeholder="Write a log/update"></textarea>
+                <input type="text" id="comment-msg-${ticket.ticket_id}" placeholder="Write a log/update" />
                 <select id="comment-status-${ticket.ticket_id}">
+                    <option value="" selected disabled>-- Change status --</option>
                     <option value="Open">Open</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Resolved">Resolved</option>
@@ -96,6 +101,7 @@ async function fetchTickets() {
                 <button onclick="deleteTicket(${ticket.ticket_id})" style="background-color:#e74c3c; color:white;">
                     Delete Ticket
                 </button>
+                <div id="comments-${ticket.ticket_id}">Loading comments...</div>
             </div>
         `;
 
@@ -107,13 +113,14 @@ async function fetchTickets() {
 // TOGGLE DETAILS + LOAD COMMENTS
 // =========================
 async function toggleDetails(ticketId) {
-    const div = document.getElementById(`details-${ticketId}`);
+    const div = $(`#details-${ticketId}`);
 
-    if (div.style.display === "none") {
-        div.style.display = "block";
-        await loadComments(ticketId);
+    if (div.is(":hidden")) {
+        div.slideDown(async function() {
+            await loadComments(ticketId);
+        });
     } else {
-        div.style.display = "none";
+        div.slideUp();
     }
 }
 
@@ -132,20 +139,35 @@ async function loadComments(ticketId) {
         return;
     }
 
-    data.comments.forEach(comment => {
-        const c = document.createElement("div");
-        c.className = "comment";
-        c.innerHTML = `
-            <p><strong>Status:</strong> ${comment.current_status}</p>
-            <p>${comment.message}</p>
-            <small>${comment.created_at}</small>
-            <button onclick='openEditComment(${ticketId}, ${JSON.stringify(comment).replace(/"/g,'&quot;')})'>
-                Edit
-            </button>
-            <hr/>
+    const table = document.createElement("table");
+    table.className = "comments-table";
+
+    table.innerHTML = `
+        <tr>
+            <th><strong>Status</strong></th>
+            <th><strong>Message</strong></th>
+            <th><strong>Time and Date</strong></th>
+            <th><strong>Edit</strong></th>
+        </tr>
+    `;
+
+    data.comments.slice().reverse().forEach(comment => {
+        const row = document.createElement("tr");
+        row.className = "comments-table-rows";
+        row.innerHTML = `
+            <td><p>${comment.current_status}</p></td>
+            <td><p>${comment.message}</p></td>
+            <td><p>${comment.created_at}</p></td>
+            <td>
+                <button onclick='openEditComment(${ticketId}, ${JSON.stringify(comment).replace(/"/g,'&quot;')})'>
+                    Edit
+                </button>
+            </td>
         `;
-        commentsDiv.appendChild(c);
+        table.appendChild(row);
     });
+
+    commentsDiv.appendChild(table);
 }
 
 // =========================
@@ -242,7 +264,7 @@ function openEditTicket(ticket) {
         <input type="text" name="title" value="${ticket.title}" required />
 
         <label>Description</label>
-        <textarea name="description">${ticket.description || ""}</textarea>
+        <input type="text" name="description" value="${ticket.description || ""}" />
 
         <label>Assigned To</label>
         <input type="text" name="assigned_to" value="${ticket.assigned_to || ""}" />
@@ -287,7 +309,7 @@ function openEditComment(ticketId, comment) {
 
     editFields.innerHTML = `
         <label>Message</label>
-        <textarea name="message" required>${comment.message}</textarea>
+        <input type="text" name="message" value="${comment.message}" required />
 
         <label>Status</label>
         <select name="current_status">
