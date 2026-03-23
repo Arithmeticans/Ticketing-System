@@ -1,5 +1,8 @@
 const API_BASE = "/api";
 
+// Format date for display
+const formatTime = (t) => new Date(t).toLocaleString();
+
 // =========================
 // Load tickets on page load
 // =========================
@@ -49,6 +52,7 @@ async function fetchTickets() {
             <table class ="ticket-card-table">
                 <tr>
                     <td><strong>${ticket.ticket_id}</strong></td>
+                    <td><p>${formatTime(ticket.created_at)}</p></td>
                     <td><p>${ticket.title}</p></td>
                     <td><p>${ticket.requested_by}</p></td>
                     <td><p>${ticket.assigned_to || "Unassigned"}</p></td>
@@ -77,16 +81,16 @@ async function fetchTickets() {
                     <option value="Closed">Closed</option>
                 </select>
 
-                <button onclick="updateTicket(${ticket.ticket_id})">
-                    Save Update
-                </button>
-
+                <button onclick="updateTicket(${ticket.ticket_id})">Save Update</button>
                 <button onclick='openEditTicket(${JSON.stringify(ticket).replace(/"/g,'&quot;')})'>
                     Edit Ticket
                 </button>
 
                 <h4>Logs / Comments</h4>
                 <input type="text" id="comment-msg-${ticket.ticket_id}" placeholder="Write a log/update" />
+                <input type="text" id="comment-next-${ticket.ticket_id}" placeholder="Next step" />
+                <input type="text" id="comment-who-${ticket.ticket_id}" placeholder="Responsible" />
+
                 <select id="comment-status-${ticket.ticket_id}">
                     <option value="" selected disabled>-- Change status --</option>
                     <option value="Open">Open</option>
@@ -95,12 +99,11 @@ async function fetchTickets() {
                     <option value="Closed">Closed</option>
                 </select>
 
-                <button onclick="addComment(${ticket.ticket_id})">
-                    Add Log
-                </button>
+                <button onclick="addComment(${ticket.ticket_id})">Add Log</button>
                 <button onclick="deleteTicket(${ticket.ticket_id})" style="background-color:#e74c3c; color:white;">
                     Delete Ticket
                 </button>
+
                 <div id="comments-${ticket.ticket_id}">Loading comments...</div>
             </div>
         `;
@@ -114,14 +117,9 @@ async function fetchTickets() {
 // =========================
 async function toggleDetails(ticketId) {
     const div = $(`#details-${ticketId}`);
-
     if (div.is(":hidden")) {
-        div.slideDown(async function() {
-            await loadComments(ticketId);
-        });
-    } else {
-        div.slideUp();
-    }
+        div.slideDown(async () => await loadComments(ticketId));
+    } else div.slideUp();
 }
 
 // =========================
@@ -144,10 +142,12 @@ async function loadComments(ticketId) {
 
     table.innerHTML = `
         <tr>
-            <th><strong>Status</strong></th>
-            <th><strong>Message</strong></th>
-            <th><strong>Time and Date</strong></th>
-            <th><strong>Edit</strong></th>
+            <th>Status</th>
+            <th>Message</th>
+            <th>Next Step</th>
+            <th>Responsible</th>
+            <th>Time and Date</th>
+            <th>Edit</th>
         </tr>
     `;
 
@@ -157,7 +157,9 @@ async function loadComments(ticketId) {
         row.innerHTML = `
             <td><p>${comment.current_status}</p></td>
             <td><p>${comment.message}</p></td>
-            <td><p>${comment.created_at}</p></td>
+            <td><p>${comment.next_step || ''}</p></td>
+            <td><p>${comment.who || ''}</p></td>
+            <td><p>${formatTime(comment.created_at)}</p></td>
             <td>
                 <button onclick='openEditComment(${ticketId}, ${JSON.stringify(comment).replace(/"/g,'&quot;')})'>
                     Edit
@@ -171,7 +173,7 @@ async function loadComments(ticketId) {
 }
 
 // =========================
-// UPDATE TICKET (STATUS + ASSIGNED PERSON)
+// UPDATE TICKET
 // =========================
 async function updateTicket(ticketId) {
     const assigned_to = document.getElementById(`assigned-${ticketId}`).value;
@@ -196,19 +198,24 @@ async function updateTicket(ticketId) {
 async function addComment(ticketId) {
     const message = document.getElementById(`comment-msg-${ticketId}`).value;
     const current_status = document.getElementById(`comment-status-${ticketId}`).value;
+    const next_step = document.getElementById(`comment-next-${ticketId}`).value;
+    const who = document.getElementById(`comment-who-${ticketId}`).value;
 
-    if (!message) {
-        alert("Message is required");
+    if (!message || !current_status) {
+        alert("Message and status are required");
         return;
     }
 
     await fetch(`${API_BASE}/tickets/${ticketId}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, current_status })
+        body: JSON.stringify({ message, current_status, next_step, who })
     });
 
     document.getElementById(`comment-msg-${ticketId}`).value = "";
+    document.getElementById(`comment-next-${ticketId}`).value = "";
+    document.getElementById(`comment-who-${ticketId}`).value = "";
+
     await loadComments(ticketId);
 }
 
@@ -220,13 +227,8 @@ async function deleteTicket(ticketId) {
     if (!confirmDelete) return;
 
     try {
-        const res = await fetch(`${API_BASE}/tickets/${ticketId}`, {
-            method: "DELETE"
-        });
-
-        if (!res.ok) {
-            throw new Error("Failed to delete ticket");
-        }
+        const res = await fetch(`${API_BASE}/tickets/${ticketId}`, { method: "DELETE" });
+        if (!res.ok) throw new Error("Failed to delete ticket");
 
         alert("Ticket deleted successfully.");
         fetchTickets();
@@ -237,7 +239,7 @@ async function deleteTicket(ticketId) {
 }
 
 // =========================
-// MODAL POPUP FOR EDITING TICKETS & COMMENTS
+// MODAL HANDLING
 // =========================
 const modal = document.getElementById("editModal");
 const closeModal = document.getElementById("closeModal");
@@ -245,20 +247,12 @@ const editForm = document.getElementById("editForm");
 const editFields = document.getElementById("editFields");
 let currentEdit = null;
 
-closeModal.onclick = () => {
-    modal.style.display = "none";
-    currentEdit = null;
-};
-window.onclick = (e) => {
-    if (e.target === modal) modal.style.display = "none";
-};
+closeModal.onclick = () => { modal.style.display = "none"; currentEdit = null; };
+window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 
-// =========================
-// OPEN EDIT TICKET MODAL
-// =========================
+// Open ticket modal
 function openEditTicket(ticket) {
     currentEdit = { type: "ticket", ticketId: ticket.ticket_id };
-
     editFields.innerHTML = `
         <label>Title</label>
         <input type="text" name="title" value="${ticket.title}" required />
@@ -284,7 +278,7 @@ function openEditTicket(ticket) {
             <option value="Low">Low</option>
             <option value="Medium">Medium</option>
             <option value="High">High</option>
-            <option value="Urgent">Urgent</option>
+            <option value="Critical">Critical</option>
         </select>
 
         <label>Urgency</label>
@@ -293,23 +287,25 @@ function openEditTicket(ticket) {
             <option value="Low">Low</option>
             <option value="Medium">Medium</option>
             <option value="High">High</option>
-            <option value="Urgent">Urgent</option>
+            <option value="Critical">Critical</option>
         </select>
     `;
-
     document.getElementById("modalTitle").innerText = `Edit Ticket #${ticket.ticket_id}`;
     modal.style.display = "block";
 }
 
-// =========================
-// OPEN EDIT COMMENT MODAL
-// =========================
+// Open comment modal
 function openEditComment(ticketId, comment) {
     currentEdit = { type: "comment", ticketId, commentId: comment.comment_id };
-
     editFields.innerHTML = `
         <label>Message</label>
         <input type="text" name="message" value="${comment.message}" required />
+
+        <label>Next Step</label>
+        <input type="text" name="next_step" value="${comment.next_step || ''}" />
+
+        <label>Responsible</label>
+        <input type="text" name="who" value="${comment.who || ''}" />
 
         <label>Status</label>
         <select name="current_status">
@@ -319,14 +315,11 @@ function openEditComment(ticketId, comment) {
             <option value="Closed" ${comment.current_status==='Closed'?'selected':''}>Closed</option>
         </select>
     `;
-
     document.getElementById("modalTitle").innerText = `Edit Log #${comment.comment_id}`;
     modal.style.display = "block";
 }
 
-// =========================
-// SUBMIT MODAL FORM
-// =========================
+// Submit modal
 editForm.onsubmit = async (e) => {
     e.preventDefault();
     if (!currentEdit) return;

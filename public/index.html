@@ -8,7 +8,7 @@
 </head>
 <body>
     <section class="header">
-        <img src = "logo.png" style="width:70px;height:70px;">
+        <img src="logo.png" style="width:70px;height:70px;">
         <h2>Arithmeticans Ticketing System</h2>
     </section>
     
@@ -16,24 +16,31 @@
     <section class="create-ticket">
         <h2>Create Ticket</h2>
         <form id="ticketForm">
-            <input type="text" id="title" placeholder="Title" required />
-            <input type="text" id="requested_by" placeholder="Requested By" required />
-            <input type="text" id="description" placeholder="Description" />
+            <label>Title</label>
+            <input type="text" id="title" class="form-input" required />
 
-            <select id="priority">
+            <label>Requested By</label>
+            <input type="text" id="requested_by" class="form-input" required />
+
+            <label>Description</label>
+            <input type="text" id="description" class="form-input" />
+
+            <label>Priority</label>
+            <select id="priority" class="form-input">
                 <option value="" selected disabled>-- Priority level --</option>
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
-                <option value="Urgent">Urgent</option>
+                <option value="Critical">Critical</option>
             </select>
 
-            <select id="urgency">
+            <label>Urgency</label>
+            <select id="urgency" class="form-input">
                 <option value="" selected disabled>-- Urgency level --</option>
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
-                <option value="Urgent">Urgent</option>
+                <option value="Critical">Critical</option>
             </select>
 
             <button type="submit">Create Ticket</button>
@@ -43,9 +50,10 @@
     <!-- TICKETS LIST -->
     <section class="tickets-container">
         <h2>All Tickets</h2>
-        <table class ="ticket-card-table-headers">
+        <table class="ticket-card-table-headers">
             <tr>
                 <th><strong>Ticket ID</strong></th>
+                <th><strong>Created At</strong></th>
                 <th><strong>Title</strong></th>
                 <th><strong>Requested By</strong></th>
                 <th><strong>Assigned To</strong></th>

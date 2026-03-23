@@ -158,23 +158,29 @@ router.put('/tickets/:ticketId/comments/:commentId', (req, res) => {
             return res.status(400).json({ error: 'Invalid ID' });
         }
 
-        const { message, current_status } = req.body;
+        const { message, current_status, next_step, who } = req.body;
 
-        if (!message && !current_status) {
-            return res.status(400).json({ error: 'At least message or current_status required.' });
+        if (!message && !current_status && !next_step && !who) {
+            return res.status(400).json({ 
+                error: 'At least one field (message, current_status, next_step, who) is required.' 
+            });
         }
 
         const stmt = db.prepare(`
             UPDATE ticket_comments
             SET 
                 message = COALESCE(?, message),
-                current_status = COALESCE(?, current_status)
+                current_status = COALESCE(?, current_status),
+                next_step = COALESCE(?, next_step),
+                who = COALESCE(?, who)
             WHERE comment_id = ? AND ticket_id = ?
         `);
 
         const result = stmt.run(
             message ?? null,
             current_status ?? null,
+            next_step ?? null,
+            who ?? null,
             commentId,
             ticketId
         );
@@ -206,7 +212,7 @@ router.post('/tickets/:id/comments', (req, res) => {
             return res.status(400).json({ error: 'Invalid ticket ID' });
         }
 
-        const { message, current_status } = req.body;
+        const { message, current_status, next_step, who } = req.body;
 
         if (!message || !current_status) {
             return res.status(400).json({
@@ -215,19 +221,25 @@ router.post('/tickets/:id/comments', (req, res) => {
         }
 
         const stmt = db.prepare(`
-            INSERT INTO ticket_comments (ticket_id, current_status, message)
-            VALUES (?, ?, ?)
+            INSERT INTO ticket_comments (ticket_id, current_status, message, next_step, who)
+            VALUES (?, ?, ?, ?, ?)
         `);
 
-        stmt.run(id, current_status, message);
+        stmt.run(
+            id,
+            current_status,
+            message,
+            next_step ?? null,
+            who ?? null
+        );
 
         return res.status(201).json({ message: 'Comment added successfully' });
 
     } catch (err) {
-        return res.status(500).json({ error: 'Failed to add comment' });
+        console.error("ADD COMMENT ERROR:", err);
+        return res.status(500).json({ error: err.message });
     }
 });
-
 
 // =========================
 // DELETE TICKET (CASCADE COMMENTS)
