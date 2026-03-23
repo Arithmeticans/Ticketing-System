@@ -16,31 +16,26 @@
     <section class="create-ticket">
         <h2>Create Ticket</h2>
         <form id="ticketForm">
-            <label>Title</label>
-            <input type="text" id="title" class="form-input" required />
+            <input type="text" placeholder="Title" id="title" class="form-input" required />
 
-            <label>Requested By</label>
-            <input type="text" id="requested_by" class="form-input" required />
+            <input type="text" placeholder="Caller" id="requested_by" class="form-input" required />
 
-            <label>Description</label>
-            <input type="text" id="description" class="form-input" />
+            <input type="text" placeholder="Description" id="description" class="form-input" />
 
-            <label>Priority</label>
             <select id="priority" class="form-input">
                 <option value="" selected disabled>-- Priority level --</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Critical">Critical</option>
+                <option value="Low">1 - Low</option>
+                <option value="Medium">2 - Medium</option>
+                <option value="High">3 - High</option>
+                <option value="Critical">4 - Critical</option>
             </select>
 
-            <label>Urgency</label>
             <select id="urgency" class="form-input">
                 <option value="" selected disabled>-- Urgency level --</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Critical">Critical</option>
+                <option value="Low">1 - Low</option>
+                <option value="Medium">2 - Medium</option>
+                <option value="High">3 - High</option>
+                <option value="Critical">4 - Critical</option>
             </select>
 
             <button type="submit">Create Ticket</button>
@@ -52,10 +47,10 @@
         <h2>All Tickets</h2>
         <table class="ticket-card-table-headers">
             <tr>
-                <th><strong>Ticket ID</strong></th>
+                <th><strong>Incident ID</strong></th>
                 <th><strong>Created At</strong></th>
                 <th><strong>Title</strong></th>
-                <th><strong>Requested By</strong></th>
+                <th><strong>Caller</strong></th>
                 <th><strong>Assigned To</strong></th>
                 <th><strong>Priority</strong></th>
                 <th><strong>Urgency</strong></th>

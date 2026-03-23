@@ -5,7 +5,7 @@ body {
     height: auto;
 }
 
-h1, h2, h3, h4, h5, h6, p, small, strong, button, input, select, label {
+h1, h2, h3, h4, h5, h6, p, small, strong, button, input, select, label, th {
     font-family: "Century Gothic", CenturyGothic, Geneva, AppleGothic, sans-serif;
 }
 
@@ -68,7 +68,7 @@ select {
     margin-top: 20px;
     margin-bottom: 20px;
     height: auto; 
-    width: 1750px;
+    width: 1950px;
     margin-left: auto;
     margin-right: auto;
     display: grid;
@@ -94,7 +94,7 @@ select {
     margin-top: 20px;
     margin-bottom: 20px;
     height: auto; 
-    width: 1750px;
+    width: 1950px;
     margin-left: auto;
     margin-right: auto;
     display: grid;
@@ -185,7 +185,7 @@ select {
     color: rgb(0, 0, 0);
 }
 
-.urgent {
+.critical {
     background-color: #e74c3c;
     color: rgb(0, 0, 0);
 }
@@ -193,15 +193,15 @@ select {
 .details {
     border: 1px solid #22245a;
     border-radius: 10px;
-    background-color: rgb(81, 133, 176);
+    background-color: rgb(207, 207, 255);
     padding-top: 0px;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 50px;
+    padding-right: 50px;
     padding-bottom: 20px;
-    color: #fff;
-    width: 1595px;
+    color: #000;
+    width: 1730px;
     height: auto;
-    max-width: 1595px;
+    max-width: 1730px;
     word-wrap: break-word;
     white-space: normal;
 }
@@ -216,7 +216,6 @@ select {
 
 .comments-table {
     border-collapse: separate;
-    border: 1px solid #22245a;
     border-radius: 10px;
     margin-top: 10px;
     table-layout: fixed;
@@ -227,10 +226,11 @@ select {
 
 .comments-table td {
     border-radius: 10px;
-    width: 375px;
-    max-width: 375px;
+    width: 280px;
+    max-width: 280px;
     word-wrap: break-word;
     white-space: normal;
+    padding: 0 10px 0 10px;
 }
 
 .comments-table tr {
@@ -243,7 +243,8 @@ select {
     vertical-align: middle;
     border: 1px solid #22245a;
     border-radius: 10px;
-    width: 375px;
+    width: 280px;
+    max-width: 280px;
     height: 50px;
 }
 
@@ -257,7 +258,8 @@ select {
     color: #fff;
     text-align: center;
     vertical-align: middle;
-    width: 375px;
+    width: 280px;
+    max-width: 280px;
     height: 50px;
 }
 

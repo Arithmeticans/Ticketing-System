@@ -70,7 +70,7 @@ async function fetchTickets() {
             <div id="details-${ticket.ticket_id}" class="details" style="display:none;">
                 <p><strong>Description:</strong> ${ticket.description || "No description"}</p>
 
-                <h4>Update Ticket</h4>
+                <h4>Edit Ticket</h4>
                 <input type="text" id="assigned-${ticket.ticket_id}" placeholder="Assign to (name)" />
                 
                 <select id="status-${ticket.ticket_id}">
@@ -83,26 +83,19 @@ async function fetchTickets() {
 
                 <button onclick="updateTicket(${ticket.ticket_id})">Save Update</button>
                 <button onclick='openEditTicket(${JSON.stringify(ticket).replace(/"/g,'&quot;')})'>
-                    Edit Ticket
+                    Edit Details
                 </button>
-
-                <h4>Logs / Comments</h4>
-                <input type="text" id="comment-msg-${ticket.ticket_id}" placeholder="Write a log/update" />
-                <input type="text" id="comment-next-${ticket.ticket_id}" placeholder="Next step" />
-                <input type="text" id="comment-who-${ticket.ticket_id}" placeholder="Responsible" />
-
-                <select id="comment-status-${ticket.ticket_id}">
-                    <option value="" selected disabled>-- Change status --</option>
-                    <option value="Open">Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Resolved">Resolved</option>
-                    <option value="Closed">Closed</option>
-                </select>
-
-                <button onclick="addComment(${ticket.ticket_id})">Add Log</button>
                 <button onclick="deleteTicket(${ticket.ticket_id})" style="background-color:#e74c3c; color:white;">
                     Delete Ticket
                 </button>
+
+                <h4>Updates / Work Notes</h4>
+                <input type="text" id="comment-msg-${ticket.ticket_id}" placeholder="Write an update" />
+                <input type="text" id="comment-next-${ticket.ticket_id}" placeholder="Next step" />
+                <input type="text" id="comment-who-${ticket.ticket_id}" placeholder="Person in charge" />
+                <input type="text" id="comment-status-${ticket.ticket_id}" placeholder="Business impact" />
+
+                <button onclick="addComment(${ticket.ticket_id})">Add Log</button>
 
                 <div id="comments-${ticket.ticket_id}">Loading comments...</div>
             </div>
@@ -133,7 +126,7 @@ async function loadComments(ticketId) {
     commentsDiv.innerHTML = "";
 
     if (data.comments.length === 0) {
-        commentsDiv.innerHTML = "<p>No logs yet.</p>";
+        commentsDiv.innerHTML = "<p>No updates yet.</p>";
         return;
     }
 
@@ -142,11 +135,11 @@ async function loadComments(ticketId) {
 
     table.innerHTML = `
         <tr>
-            <th>Status</th>
-            <th>Message</th>
-            <th>Next Step</th>
-            <th>Responsible</th>
             <th>Time and Date</th>
+            <th>Update / Notes</th>
+            <th>Next Step</th>
+            <th>Person in Charge</th>
+            <th>Business Impact</th>
             <th>Edit</th>
         </tr>
     `;
@@ -155,11 +148,11 @@ async function loadComments(ticketId) {
         const row = document.createElement("tr");
         row.className = "comments-table-rows";
         row.innerHTML = `
-            <td><p>${comment.current_status}</p></td>
+            <td><p>${formatTime(comment.created_at)}</p></td>
             <td><p>${comment.message}</p></td>
             <td><p>${comment.next_step || ''}</p></td>
             <td><p>${comment.who || ''}</p></td>
-            <td><p>${formatTime(comment.created_at)}</p></td>
+            <td><p>${comment.current_status}</p></td>
             <td>
                 <button onclick='openEditComment(${ticketId}, ${JSON.stringify(comment).replace(/"/g,'&quot;')})'>
                     Edit
@@ -275,19 +268,19 @@ function openEditTicket(ticket) {
         <label>Priority</label>
         <select name="priority">
             <option value="">-- Keep current --</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Critical">Critical</option>
+            <option value="Low">1 - Low</option>
+            <option value="Medium">2 - Medium</option>
+            <option value="High">3 - High</option>
+            <option value="Critical">4 - Critical</option>
         </select>
 
         <label>Urgency</label>
         <select name="urgency">
             <option value="">-- Keep current --</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Critical">Critical</option>
+            <option value="Low">1 - Low</option>
+            <option value="Medium">2 - Medium</option>
+            <option value="High">3 - High</option>
+            <option value="Critical">4 - Critical</option>
         </select>
     `;
     document.getElementById("modalTitle").innerText = `Edit Ticket #${ticket.ticket_id}`;
@@ -298,22 +291,17 @@ function openEditTicket(ticket) {
 function openEditComment(ticketId, comment) {
     currentEdit = { type: "comment", ticketId, commentId: comment.comment_id };
     editFields.innerHTML = `
-        <label>Message</label>
+        <label>Update / Notes</label>
         <input type="text" name="message" value="${comment.message}" required />
 
         <label>Next Step</label>
         <input type="text" name="next_step" value="${comment.next_step || ''}" />
 
-        <label>Responsible</label>
+        <label>Person in Charge</label>
         <input type="text" name="who" value="${comment.who || ''}" />
 
-        <label>Status</label>
-        <select name="current_status">
-            <option value="Open" ${comment.current_status==='Open'?'selected':''}>Open</option>
-            <option value="In Progress" ${comment.current_status==='In Progress'?'selected':''}>In Progress</option>
-            <option value="Resolved" ${comment.current_status==='Resolved'?'selected':''}>Resolved</option>
-            <option value="Closed" ${comment.current_status==='Closed'?'selected':''}>Closed</option>
-        </select>
+        <label>Business Impact</label>
+        <input type="text" name="current_status" value="${comment.current_status || ''}" />
     `;
     document.getElementById("modalTitle").innerText = `Edit Log #${comment.comment_id}`;
     modal.style.display = "block";
