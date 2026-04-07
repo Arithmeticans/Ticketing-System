@@ -112,7 +112,7 @@ async function openModal(ticketId) {
         <div><b>Priority:</b> ${t.priority}</div>
         <div><b>Status:</b> ${t.status}</div>
         <div><b>Urgency:</b> ${t.urgency}</div>
-        <div><b>Created At:</b> ${t.created_at}</div>
+        <div><b>Created At:</b> ${formatTime(t.created_at)}</div>
     `;
 
     // description
