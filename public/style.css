@@ -11,6 +11,10 @@ h1, h2 {
     margin: 0;
 }
 
+h2 {
+    margin-bottom: 10px;
+}
+
 /* =========================
    HEADER
 ========================= */
@@ -33,7 +37,7 @@ header {
 .card {
     background-color: rgb(237, 237, 255);
     margin: 20px auto;
-    padding: 20px;
+    padding: 30px;
     border-radius: 20px;
     width: 95%;
     max-width: 1400px;
@@ -52,6 +56,10 @@ input, select {
     padding: 8px;
     border-radius: 15px;
     border: 1px solid #ccc;
+}
+
+#ct-title, #ct-caller, #ct-description {
+    width: 300px;
 }
 
 button {
@@ -101,6 +109,14 @@ tbody td {
     border-bottom: 5px solid rgb(207, 207, 255);
 }
 
+tbody td:first-child {
+    border-radius: 10px 0 0 10px;
+}
+
+tbody td:last-child {
+    border-radius: 0 10px 10px 0;
+}
+
 /* =========================
    PRIORITY COLORS
 ========================= */
@@ -141,13 +157,29 @@ td:nth-child(7).Low {
 }
 
 .modal {
-    background: rgb(237, 237, 255);
-    width: 90%;
-    max-width: 900px;
-    border-radius: 20px;
-    padding: 20px;
-    max-height: 700px;
-    overflow-y: auto;
+  background: rgb(237, 237, 255);
+  width: 90%;
+  max-width: 900px;
+  border-radius: 20px;
+  padding: 30px;
+  max-height: 700px;
+  overflow-y: auto;
+  padding-right: 30px;
+  margin-right: -20px;
+  animation: appear 0.5s;
+}
+
+.modal::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 999px;
 }
 
 /* =========================
@@ -187,6 +219,10 @@ td:nth-child(7).Low {
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
+}
+
+#log-update, #log-nextstep, #log-impact, #modal-assign {
+    width: 242px;
 }
 
 /* =========================
@@ -230,4 +266,10 @@ td:nth-child(7).Low {
 
 .btn-neutral {
     background-color: #555;
+}
+
+@keyframes appear {
+    0% {opacity:0;}
+    50% {opacity:0;}
+    100% {opacity:1;}
 }

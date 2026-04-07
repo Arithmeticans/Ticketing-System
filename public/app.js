@@ -96,9 +96,10 @@ async function openModal(ticketId) {
     document.getElementById("modal-info").innerHTML = `
         <div><b>Caller:</b> ${t.requested_by}</div>
         <div><b>Assigned:</b> ${t.assigned_to || "Unassigned"}</div>
-        <div><b>Status:</b> ${t.status}</div>
         <div><b>Priority:</b> ${t.priority}</div>
+        <div><b>Status:</b> ${t.status}</div>
         <div><b>Urgency:</b> ${t.urgency}</div>
+        <div><b>Created At:</b> ${t.created_at}</div>
     `;
 
     // description
