@@ -1,349 +1,233 @@
+/* =========================
+   GLOBAL
+========================= */
 body {
     margin: 0;
-    padding: 0;
     background-color: rgb(207, 207, 255);
-    height: auto;
+    font-family: "Century Gothic", sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6, p, small, strong, button, input, select, label, th {
-    font-family: "Century Gothic", CenturyGothic, Geneva, AppleGothic, sans-serif;
+h1, h2 {
+    margin: 0;
 }
 
-button, input, select {
+/* =========================
+   HEADER
+========================= */
+header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: rgb(5, 48, 84);
+    color: #d4d4d4;
+    padding: 20px;
+}
+
+.logo {
+    font-size: 24px;
+}
+
+/* =========================
+   CARD LAYOUT
+========================= */
+.card {
+    background-color: rgb(237, 237, 255);
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 20px;
+    width: 95%;
+    max-width: 1400px;
+}
+
+/* =========================
+   CREATE FORM
+========================= */
+.create-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+input, select {
+    padding: 8px;
     border-radius: 15px;
-    cursor: pointer;
-    height: 30px;
-    width: 160px;
+    border: 1px solid #ccc;
 }
 
 button {
-    background-color: rgb(81, 133, 176);
-    color: #fff;
+    border-radius: 15px;
     border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    background-color: rgb(81, 133, 176);
+    color: white;
 }
 
 button:hover {
-    opacity: 0.8;
-    box-shadow: 0px 5px 5px rgba(165, 156, 156, 0.8);
+    opacity: 0.85;
 }
 
-input {
-    padding-left: 10px;
+/* =========================
+   TABLE
+========================= */
+.table-wrap {
+    overflow-x: auto;
 }
 
-select {
-    padding-left: 10px;
-}
-
-.header {
-    display: flex;
-    flex-direction: row;
-    background-color: rgb(5, 48, 84);
-    height: 100px;
-    -webkit-animation: appear 0.8s ;
-    animation: appear 0.8s ;
-}
-
-.header img {
-    margin-top: 14px;
-    margin-left: 15px;
-}
-
-.header h2 {
-    color: #d4d4d4;
-    margin-top: 34px;
-    margin-left: 5px;
-}
-
-@keyframes appear {
-    0% {opacity:0;}
-    50% {opacity:0;}
-    100% {opacity:1;}
-}
-
-.create-ticket {
-    background-color: rgb(237, 237, 255);
-    padding-top: 25px;
-    padding-bottom: 25px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    height: auto; 
-    width: 1950px;
-    margin-left: auto;
-    margin-right: auto;
-    display: grid;
-    justify-content: center;
-    align-items: center;
-    border-radius: 20px;
-    -webkit-animation: appear 1s ;
-    animation: appear 1s ;
-}
-
-.create-ticket h2 {
-    margin-top: 0;
-}
-
-.create-ticket input {
-    width: 335px;
-}
-
-.tickets-container {
-    background-color: rgb(237, 237, 255);
-    padding-top: 25px;
-    padding-bottom: 25px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    height: auto; 
-    width: 1950px;
-    margin-left: auto;
-    margin-right: auto;
-    display: grid;
-    justify-content: center;
-    align-items: center;
-    border-radius: 20px;
-    -webkit-animation: appear 1.2s ;
-    animation: appear 1.2s ;
-}
-
-.tickets-container h2 {
-    margin-top: 0;
-    margin-left: 50px;
-}
-
-.ticket-card {
-    display: grid;
-    align-items: center;
-    justify-content: center;
-}
-
-.ticket-card-table {
+table {
+    width: 100%;
     border-collapse: separate;
-    border: 1px solid #22245a;
-    border-radius: 10px;
+    border-spacing: 0;
 }
 
-.ticket-card-table td {
-    border-radius: 10px;
-    width: 200px;
-    max-width: 200px;
-    word-wrap: break-word;
-    white-space: normal;
-}
-
-.ticket-card-table tr, .ticket-card-table td {
-    text-align: center;
-    vertical-align: middle;
-    width: 200px;
-    height: 50px;
-}
-
-.ticket-card-table td:hover {
-    opacity: 0.8;
-    box-shadow: 0px 5px 10px rgba(65, 62, 62, 0.8);
-}
-
-.ticket-card-table-headers {
-    border-collapse: separate;
-    border: 1px solid #22245a;
-    border-radius: 10px;
-}
-
-.ticket-card-table-headers th {
+thead th {
     background-color: rgb(58, 97, 130);
-    color: #fff;
-    text-align: center;
-    vertical-align: middle;
-    width: 200px;
-    height: 50px;
+    color: white;
+    padding: 12px;
 }
 
-.ticket-card-table-headers th:first-child {
+thead th:first-child {
     border-radius: 10px 0 0 10px;
 }
 
-.ticket-card-table-headers th:last-child {
+thead th:last-child {
     border-radius: 0 10px 10px 0;
 }
 
-.ticket-card-table-headers th:hover {
-    opacity: 0.8;
-    box-shadow: 0px 5px 10px rgba(65, 62, 62, 0.8);
+tbody td {
+    text-align: center;
+    padding: 10px;
+    background: white;
+    border-bottom: 5px solid rgb(207, 207, 255);
 }
 
-.low {
-    background-color: #2ecc71;
-    color: rgb(0, 0, 0);
-}
-
-.medium {
-    background-color: #f3e812;
-    color: rgb(0, 0, 0);
-}
-
-.high {
-    background-color: #e67e22;
-    color: rgb(0, 0, 0);
-}
-
-.critical {
+/* =========================
+   PRIORITY COLORS
+========================= */
+td:nth-child(6).Critical,
+td:nth-child(7).Critical {
     background-color: #e74c3c;
-    color: rgb(0, 0, 0);
 }
 
-.details {
-    border: 1px solid #22245a;
-    border-radius: 10px;
-    background-color: rgb(207, 207, 255);
-    padding-top: 0px;
-    padding-left: 50px;
-    padding-right: 50px;
-    padding-bottom: 20px;
-    color: #000;
-    width: 1730px;
-    height: auto;
-    max-width: 1730px;
-    word-wrap: break-word;
-    white-space: normal;
+td:nth-child(6).High,
+td:nth-child(7).High {
+    background-color: #e67e22;
 }
 
-.details button {
-    background-color: #22245a;
+td:nth-child(6).Medium,
+td:nth-child(7).Medium {
+    background-color: #f3e812;
 }
 
-.details input {
-    width: 335px;
+td:nth-child(6).Low,
+td:nth-child(7).Low {
+    background-color: #2ecc71;
 }
 
-.comments-table {
-    border-collapse: separate;
-    border-radius: 10px;
-    margin-top: 10px;
-    table-layout: fixed;
-    margin-right: auto;
-    margin-left: auto;
-    margin-top: 15px;
+/* =========================
+   MODAL
+========================= */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
 }
 
-.comments-table td {
-    border-radius: 10px;
-    width: 280px;
-    max-width: 280px;
-    word-wrap: break-word;
-    white-space: normal;
-    padding: 0 10px 0 10px;
-}
-
-.comments-table tr {
-    border: 1px solid #22245a;
-    border-radius: 10px;
-}
-
-.comments-table tr, .comments-table td {
-    text-align: center;
-    vertical-align: middle;
-    border: 1px solid #22245a;
-    border-radius: 10px;
-    width: 280px;
-    max-width: 280px;
-    height: 50px;
-}
-
-.comments-table td:hover {
-    opacity: 0.8;
-    box-shadow: 0px 5px 10px rgba(65, 62, 62, 0.8);
-}
-
-.comments-table th {
-    background-color: rgb(58, 97, 130);
-    color: #fff;
-    text-align: center;
-    vertical-align: middle;
-    width: 280px;
-    max-width: 280px;
-    height: 50px;
-}
-
-.comments-table th {
-    border: 1px solid #22245a;
-    border-radius: 10px;
-}
-
-.comments-table th:hover {
-    opacity: 0.8;
-    box-shadow: 0px 5px 10px rgba(65, 62, 62, 0.8);
+.modal-backdrop.open {
+    display: flex;
 }
 
 .modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.5);
-    -webkit-animation: appear 0.6s ;
-    animation: appear 0.6s ;
-}
-    
-.modal-content {
-    background-color: rgb(207, 207, 255);
-    margin: 10% auto;
-    padding: 20px;
-    width: 400px;
+    background: rgb(237, 237, 255);
+    width: 90%;
+    max-width: 900px;
     border-radius: 20px;
-    position: relative;
+    padding: 20px;
+    max-height: 700px;
+    overflow-y: auto;
+}
+
+/* =========================
+   MODAL CONTENT
+========================= */
+.modal-header {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 20px;  
-    -webkit-animation: appear 0.6s ;
-    animation: appear 0.6s ;
 }
 
-#editForm {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    -webkit-animation: appear 1.0s ;
-    animation: appear 1.0s ;
-}
-
-#editFields {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    -webkit-animation: appear 1.0s ;
-    animation: appear 1.0s ;
-}
-
-#editForm input, #editForm select, #editForm button {
-    width: 200px;
-}
-
-#modalTitle {
-    margin-bottom: 0px;
-    margin-top: 0px;
-}
-
-.close {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
+.modal-close {
+    background: none;
+    font-size: 20px;
     cursor: pointer;
 }
 
-.footer {
-    margin-top: auto;
+.ticket-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.ticket-info-desc div {
+    word-wrap: break-word;
+}
+
+.section-label {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.modal-actions,
+.log-form {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgb(5, 48, 84);
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* =========================
+   LOGS TABLE (INSIDE MODAL ONLY)
+========================= */
+.logs-table-wrap {
+    margin-top: 15px;
+    overflow-x: auto;
+}
+
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.logs-table th {
+    background-color: rgb(58, 97, 130);
     color: white;
-    height: 100px;
-    -webkit-animation: appear 1.4s;
-    animation: appear 1.4s;
+    padding: 10px;
+}
+
+.logs-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 200px;
+}
+
+/* =========================
+   BUTTON VARIANTS
+========================= */
+.btn-success {
+    background-color: #2ecc71;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+}
+
+.btn-neutral {
+    background-color: #555;
 }

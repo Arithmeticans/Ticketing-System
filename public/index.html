@@ -1,82 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Ticketing System</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arithmeticans Ticketing System</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <section class="header">
-        <img src="logo.png" style="width:70px;height:70px;">
-        <h2>Arithmeticans Ticketing System</h2>
-    </section>
-    
-    <!-- CREATE TICKET FORM -->
-    <section class="create-ticket">
-        <h2>Create Ticket</h2>
-        <form id="ticketForm">
-            <input type="text" placeholder="Title" id="title" class="form-input" required />
 
-            <input type="text" placeholder="Caller" id="requested_by" class="form-input" required />
+<header>
+  <img src="logo.png" style="width:70px;height:70px;">
+  <h1>Arithmeticans Ticketing System</h1>
+</header>
 
-            <input type="text" placeholder="Description" id="description" class="form-input" />
+<main>
 
-            <select id="priority" class="form-input">
-                <option value="" selected disabled>-- Priority level --</option>
-                <option value="Low">1 - Low</option>
-                <option value="Medium">2 - Medium</option>
-                <option value="High">3 - High</option>
-                <option value="Critical">4 - Critical</option>
-            </select>
+  <section class="card">
+    <h2>Create Ticket</h2>
 
-            <select id="urgency" class="form-input">
-                <option value="" selected disabled>-- Urgency level --</option>
-                <option value="Low">1 - Low</option>
-                <option value="Medium">2 - Medium</option>
-                <option value="High">3 - High</option>
-                <option value="Critical">4 - Critical</option>
-            </select>
+    <form id="create-form" class="create-form">
+        <input type="text" id="ct-title" placeholder="Title" required />
+        <input type="text" id="ct-caller" placeholder="Caller" required />
+        <input type="text" id="ct-description" placeholder="Description" required />
 
-            <button type="submit">Create Ticket</button>
-        </form>
-    </section>
+        <select id="ct-priority" required>
+        <option value="" disabled selected>-- Priority level --</option>
+        <option>Critical</option>
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+        </select>
 
-    <!-- TICKETS LIST -->
-    <section class="tickets-container">
-        <h2>All Tickets</h2>
-        <table class="ticket-card-table-headers">
-            <tr>
-                <th><strong>Incident ID</strong></th>
-                <th><strong>Created At</strong></th>
-                <th><strong>Title</strong></th>
-                <th><strong>Caller</strong></th>
-                <th><strong>Assigned To</strong></th>
-                <th><strong>Priority</strong></th>
-                <th><strong>Urgency</strong></th>
-                <th><strong>Status</strong></th>
-                <th><strong>Details</strong></th>
-            </tr>
-        </table>
-        <div id="ticketsContainer"></div>
+        <select id="ct-urgency" required>
+        <option value="" disabled selected>-- Urgency level --</option>
+        <option>Critical</option>
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+        </select>
+
+        <button class="btn btn-primary" type="submit">Create Ticket</button>
+    </form>
     </section>
 
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span id="closeModal" class="close">&times;</span>
-            <h3 id="modalTitle">Edit</h3>
-            <form id="editForm">
-                <div id="editFields"></div>
-                <button type="submit">Save</button>
-            </form>
-        </div>
+  <section class="card">
+    <h2>All Tickets</h2>
+    <div class="table-wrap">
+      <table id="tickets-table">
+        <thead>
+          <tr>
+            <th>Incident ID</th>
+            <th>Created At</th>
+            <th>Title</th>
+            <th>Caller</th>
+            <th>Assigned To</th>
+            <th>Priority</th>
+            <th>Urgency</th>
+            <th>Status</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody id="tickets-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal-backdrop" id="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" id="modal">
+
+    <div class="modal-header">
+      <h3 id="modal-title">Ticket #—</h3>
+      <button class="modal-close" onclick="closeModal()" title="Close">✕</button>
     </div>
 
-    <script src="app.js"></script>
+    <div class="modal-body">
+      <div class="ticket-info-grid" id="modal-info"></div>
 
-    <section class="footer">
-        <strong>© 2026 Arithmeticans. All Rights Reserved</strong>
-    </section>
+      <div>
+      <div class="ticket-info-desc" id="modal-desc"></div>
+
+      <div>
+        <div class="modal-actions">
+          <input type="text" id="modal-assign" placeholder="Assign to (name)" />
+          <select id="modal-status">
+            <option value="" disabled selected>-- Change status --</option>
+            <option>Open</option>
+            <option>In Progress</option>
+            <option>Resolved</option>
+            <option>Closed</option>
+          </select>
+          <button class="btn btn-success" onclick="saveTicketUpdate()">Update</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTicket()">Delete Ticket</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Updates / Work Notes</div>
+        <div class="log-form">
+          <input type="text" id="log-update" placeholder="Write an update" />
+          <input type="text" id="log-nextstep" placeholder="Next step" />
+          <input type="text" id="log-impact" placeholder="Business impact" />
+          <button class="btn btn-neutral btn-sm" onclick="addLog()">Add Log</button>
+        </div>
+      </div>
+
+      <div class="logs-table-wrap">
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th>Time and Date</th>
+              <th>Update / Notes</th>
+              <th>Next Step</th>
+              <th>Business Impact</th>
+            </tr>
+          </thead>
+          <tbody id="modal-logs"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
 </body>
 </html>

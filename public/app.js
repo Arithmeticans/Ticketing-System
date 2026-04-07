@@ -1,337 +1,216 @@
 const API_BASE = "/api";
 
-// Format date for display
 const formatTime = (t) => new Date(t).toLocaleString();
 
+let activeTicketId = null;
+
 // =========================
-// Load tickets on page load
+// INIT
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
     fetchTickets();
 });
 
 // =========================
-// CREATE TICKET
-// =========================
-document.getElementById("ticketForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const data = {
-        title: document.getElementById("title").value,
-        description: document.getElementById("description").value,
-        requested_by: document.getElementById("requested_by").value,
-        priority: document.getElementById("priority").value,
-        urgency: document.getElementById("urgency").value
-    };
-
-    await fetch(`${API_BASE}/tickets`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    });
-
-    e.target.reset();
-    fetchTickets();
-});
-
-// =========================
-// FETCH ALL TICKETS
+// FETCH + RENDER TABLE
 // =========================
 async function fetchTickets() {
     const res = await fetch(`${API_BASE}/tickets`);
     const tickets = await res.json();
 
-    const container = document.getElementById("ticketsContainer");
-    container.innerHTML = "";
+    const tbody = document.getElementById("tickets-body");
+    tbody.innerHTML = "";
 
-    tickets.forEach(ticket => {
-        const ticketDiv = document.createElement("div");
-        ticketDiv.className = "ticket-card";
-
-        ticketDiv.innerHTML = `
-            <table class ="ticket-card-table">
-                <tr>
-                    <td><strong>${ticket.ticket_id}</strong></td>
-                    <td><p>${formatTime(ticket.created_at)}</p></td>
-                    <td><p>${ticket.title}</p></td>
-                    <td><p>${ticket.requested_by}</p></td>
-                    <td><p>${ticket.assigned_to || "Unassigned"}</p></td>
-                    <td class="priority ${ticket.priority?.toLowerCase()}"><p>${ticket.priority}</p></td>
-                    <td class="urgency ${ticket.urgency?.toLowerCase()}"><p>${ticket.urgency}</p></td>
-                    <td><strong>${ticket.status}</strong></td>
-                    <td>
-                        <button class="show-details-button" onclick="toggleDetails(${ticket.ticket_id})">
-                            Show Details
-                        </button>
-                    </td>
-                </tr>
-            </table>
-
-            <div id="details-${ticket.ticket_id}" class="details" style="display:none;">
-                <p><strong>Description:</strong> ${ticket.description || "No description"}</p>
-
-                <h4>Edit Ticket</h4>
-                <input type="text" id="assigned-${ticket.ticket_id}" placeholder="Assign to (name)" />
-                
-                <select id="status-${ticket.ticket_id}">
-                    <option value="" selected disabled>-- Change status --</option>
-                    <option value="Open">Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Resolved">Resolved</option>
-                    <option value="Closed">Closed</option>
-                </select>
-
-                <button onclick="updateTicket(${ticket.ticket_id})">Save Update</button>
-                <button onclick='openEditTicket(${JSON.stringify(ticket).replace(/"/g,'&quot;')})'>
-                    Edit Details
-                </button>
-                <button onclick="deleteTicket(${ticket.ticket_id})" style="background-color:#e74c3c; color:white;">
-                    Delete Ticket
-                </button>
-
-                <h4>Updates / Work Notes</h4>
-                <input type="text" id="comment-msg-${ticket.ticket_id}" placeholder="Write an update" />
-                <input type="text" id="comment-next-${ticket.ticket_id}" placeholder="Next step" />
-                <input type="text" id="comment-who-${ticket.ticket_id}" placeholder="Person in charge" />
-                <input type="text" id="comment-status-${ticket.ticket_id}" placeholder="Business impact" />
-
-                <button onclick="addComment(${ticket.ticket_id})">Add Log</button>
-
-                <div id="comments-${ticket.ticket_id}">Loading comments...</div>
-            </div>
+    tickets.forEach(t => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${t.ticket_id}</td>
+                <td>${formatTime(t.created_at)}</td>
+                <td>${t.title}</td>
+                <td>${t.requested_by}</td>
+                <td>${t.assigned_to || "Unassigned"}</td>
+                <td class="${t.priority}">${t.priority}</td>
+                <td class="${t.urgency}">${t.urgency}</td>
+                <td>${t.status}</td>
+                <td>
+                    <button onclick="openModal(${t.ticket_id})">Details</button>
+                </td>
+            </tr>
         `;
-
-        container.appendChild(ticketDiv);
     });
 }
 
 // =========================
-// TOGGLE DETAILS + LOAD COMMENTS
+// CREATE TICKET
 // =========================
-async function toggleDetails(ticketId) {
-    const div = $(`#details-${ticketId}`);
-    if (div.is(":hidden")) {
-        div.slideDown(async () => await loadComments(ticketId));
-    } else div.slideUp();
-}
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchTickets();
+
+        const form = document.getElementById("create-form");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const data = {  
+                title: document.getElementById("ct-title").value,
+                description: document.getElementById("ct-description").value,
+                requested_by: document.getElementById("ct-caller").value,
+                priority: document.getElementById("ct-priority").value,
+                urgency: document.getElementById("ct-urgency").value
+            };
+
+            const res = await fetch(`${API_BASE}/tickets`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            if (!res.ok) {
+                alert("Failed to create ticket");
+                return;
+            }
+
+            form.reset();
+            fetchTickets();
+        });
+});
+
 
 // =========================
-// LOAD COMMENTS
+// OPEN MODAL (API DRIVEN)
 // =========================
-async function loadComments(ticketId) {
+async function openModal(ticketId) {
+    activeTicketId = ticketId;
+
     const res = await fetch(`${API_BASE}/tickets/${ticketId}`);
     const data = await res.json();
 
-    const commentsDiv = document.getElementById(`comments-${ticketId}`);
-    commentsDiv.innerHTML = "";
+    const t = data.ticket;
+    const comments = data.comments.slice().reverse(); // show latest first
 
-    if (data.comments.length === 0) {
-        commentsDiv.innerHTML = "<p>No updates yet.</p>";
-        return;
-    }
+    // Header
+    document.getElementById("modal-title").textContent =
+        `Ticket #${t.ticket_id} — ${t.title}`;
 
-    const table = document.createElement("table");
-    table.className = "comments-table";
-
-    table.innerHTML = `
-        <tr>
-            <th>Time and Date</th>
-            <th>Update / Notes</th>
-            <th>Next Step</th>
-            <th>Person in Charge</th>
-            <th>Business Impact</th>
-            <th>Edit</th>
-        </tr>
+    // Info
+    document.getElementById("modal-info").innerHTML = `
+        <div><b>Caller:</b> ${t.requested_by}</div>
+        <div><b>Assigned:</b> ${t.assigned_to || "Unassigned"}</div>
+        <div><b>Status:</b> ${t.status}</div>
+        <div><b>Priority:</b> ${t.priority}</div>
+        <div><b>Urgency:</b> ${t.urgency}</div>
     `;
 
-    data.comments.slice().reverse().forEach(comment => {
-        const row = document.createElement("tr");
-        row.className = "comments-table-rows";
-        row.innerHTML = `
-            <td><p>${formatTime(comment.created_at)}</p></td>
-            <td><p>${comment.message}</p></td>
-            <td><p>${comment.next_step || ''}</p></td>
-            <td><p>${comment.who || ''}</p></td>
-            <td><p>${comment.current_status}</p></td>
-            <td>
-                <button onclick='openEditComment(${ticketId}, ${JSON.stringify(comment).replace(/"/g,'&quot;')})'>
-                    Edit
-                </button>
-            </td>
-        `;
-        table.appendChild(row);
-    });
+    // description
+    document.getElementById("modal-desc").innerHTML = `
+        <div><b>Description:</b> ${t.description || "-"}</div>
+    `;
 
-    commentsDiv.appendChild(table);
+    // Prefill
+    document.getElementById("modal-assign").value = t.assigned_to || "";
+    document.getElementById("modal-status").value = "";
+
+    renderLogs(comments);
+
+    document.getElementById("modal-backdrop").classList.add("open");
 }
 
 // =========================
-// UPDATE TICKET
+// CLOSE MODAL
 // =========================
-async function updateTicket(ticketId) {
-    const assigned_to = document.getElementById(`assigned-${ticketId}`).value;
-    const status = document.getElementById(`status-${ticketId}`).value;
+function closeModal() {
+    document.getElementById("modal-backdrop").classList.remove("open");
+    activeTicketId = null;
+}
+
+// =========================
+// SAVE TICKET UPDATE (API)
+// =========================
+async function saveTicketUpdate() {
+    const assigned_to = document.getElementById("modal-assign").value;
+    const status = document.getElementById("modal-status").value;
 
     const body = {};
     if (assigned_to) body.assigned_to = assigned_to;
     if (status) body.status = status;
 
-    await fetch(`${API_BASE}/tickets/${ticketId}`, {
+    await fetch(`${API_BASE}/tickets/${activeTicketId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
     });
 
+    await openModal(activeTicketId);
     fetchTickets();
 }
 
 // =========================
-// ADD COMMENT / LOG
+// DELETE TICKET (API)
 // =========================
-async function addComment(ticketId) {
-    const message = document.getElementById(`comment-msg-${ticketId}`).value;
-    const current_status = document.getElementById(`comment-status-${ticketId}`).value;
-    const next_step = document.getElementById(`comment-next-${ticketId}`).value;
-    const who = document.getElementById(`comment-who-${ticketId}`).value;
+async function deleteTicket() {
+    if (!confirm("Delete this ticket?")) return;
+
+    await fetch(`${API_BASE}/tickets/${activeTicketId}`, {
+        method: "DELETE"
+    });
+
+    closeModal();
+    fetchTickets();
+}
+
+// =========================
+// ADD LOG (API)
+// =========================
+async function addLog() {
+    const message = document.getElementById("log-update").value;
+    const current_status = document.getElementById("log-impact").value;
+    const next_step = document.getElementById("log-nextstep").value;
 
     if (!message || !current_status) {
-        alert("Message and status are required");
+        alert("Message and status required");
         return;
     }
 
-    await fetch(`${API_BASE}/tickets/${ticketId}/comments`, {
+    await fetch(`${API_BASE}/tickets/${activeTicketId}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, current_status, next_step, who })
+        body: JSON.stringify({ message, current_status, next_step })
     });
 
-    document.getElementById(`comment-msg-${ticketId}`).value = "";
-    document.getElementById(`comment-next-${ticketId}`).value = "";
-    document.getElementById(`comment-who-${ticketId}`).value = "";
-
-    await loadComments(ticketId);
+    openModal(activeTicketId);
 }
 
 // =========================
-// DELETE TICKET
+// RENDER LOGS
 // =========================
-async function deleteTicket(ticketId) {
-    const confirmDelete = confirm("Are you sure you want to delete this ticket and all its logs?");
-    if (!confirmDelete) return;
+function renderLogs(comments) {
+    const tbody = document.getElementById("modal-logs");
 
-    try {
-        const res = await fetch(`${API_BASE}/tickets/${ticketId}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("Failed to delete ticket");
-
-        alert("Ticket deleted successfully.");
-        fetchTickets();
-    } catch (err) {
-        console.error(err);
-        alert("Error deleting ticket.");
-    }
-}
-
-// =========================
-// MODAL HANDLING
-// =========================
-const modal = document.getElementById("editModal");
-const closeModal = document.getElementById("closeModal");
-const editForm = document.getElementById("editForm");
-const editFields = document.getElementById("editFields");
-let currentEdit = null;
-
-closeModal.onclick = () => { modal.style.display = "none"; currentEdit = null; };
-window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
-
-// Open ticket modal
-function openEditTicket(ticket) {
-    currentEdit = { type: "ticket", ticketId: ticket.ticket_id };
-    editFields.innerHTML = `
-        <label>Title</label>
-        <input type="text" name="title" value="${ticket.title}" required />
-
-        <label>Description</label>
-        <input type="text" name="description" value="${ticket.description || ""}" />
-
-        <label>Assigned To</label>
-        <input type="text" name="assigned_to" value="${ticket.assigned_to || ""}" />
-
-        <label>Status</label>
-        <select name="status">
-            <option value="">-- Keep current --</option>
-            <option value="Open">Open</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Resolved">Resolved</option>
-            <option value="Closed">Closed</option>
-        </select>
-
-        <label>Priority</label>
-        <select name="priority">
-            <option value="">-- Keep current --</option>
-            <option value="Low">1 - Low</option>
-            <option value="Medium">2 - Medium</option>
-            <option value="High">3 - High</option>
-            <option value="Critical">4 - Critical</option>
-        </select>
-
-        <label>Urgency</label>
-        <select name="urgency">
-            <option value="">-- Keep current --</option>
-            <option value="Low">1 - Low</option>
-            <option value="Medium">2 - Medium</option>
-            <option value="High">3 - High</option>
-            <option value="Critical">4 - Critical</option>
-        </select>
-    `;
-    document.getElementById("modalTitle").innerText = `Edit Ticket #${ticket.ticket_id}`;
-    modal.style.display = "block";
-}
-
-// Open comment modal
-function openEditComment(ticketId, comment) {
-    currentEdit = { type: "comment", ticketId, commentId: comment.comment_id };
-    editFields.innerHTML = `
-        <label>Update / Notes</label>
-        <input type="text" name="message" value="${comment.message}" required />
-
-        <label>Next Step</label>
-        <input type="text" name="next_step" value="${comment.next_step || ''}" />
-
-        <label>Person in Charge</label>
-        <input type="text" name="who" value="${comment.who || ''}" />
-
-        <label>Business Impact</label>
-        <input type="text" name="current_status" value="${comment.current_status || ''}" />
-    `;
-    document.getElementById("modalTitle").innerText = `Edit Log #${comment.comment_id}`;
-    modal.style.display = "block";
-}
-
-// Submit modal
-editForm.onsubmit = async (e) => {
-    e.preventDefault();
-    if (!currentEdit) return;
-
-    const formData = new FormData(editForm);
-    const body = {};
-    formData.forEach((v,k)=>{ if(v) body[k] = v });
-
-    if (currentEdit.type === "ticket") {
-        await fetch(`${API_BASE}/tickets/${currentEdit.ticketId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
-        fetchTickets();
-    } else if (currentEdit.type === "comment") {
-        await fetch(`${API_BASE}/tickets/${currentEdit.ticketId}/comments/${currentEdit.commentId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
-        await loadComments(currentEdit.ticketId);
+    if (!comments.length) {
+        tbody.innerHTML = `<tr><td colspan="4">No logs</td></tr>`;
+        return;
     }
 
-    modal.style.display = "none";
-    currentEdit = null;
-};
+    tbody.innerHTML = comments.map(c => `
+        <tr>
+            <td>${formatTime(c.created_at)}</td>
+            <td>${c.message}</td>
+            <td>${c.next_step || ""}</td>
+            <td>${c.current_status}</td>
+        </tr>
+    `).join("");
+}
+
+// =========================
+// BACKDROP CLICK
+// =========================
+function handleBackdropClick(e) {
+    if (e.target.id === "modal-backdrop") closeModal();
+}
+
+// =========================
+// ESC KEY
+// =========================
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
+});
