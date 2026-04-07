@@ -1,1 +1,4 @@
+# ignore node modules
+node_modules/
+
 *.rest

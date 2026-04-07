@@ -12,6 +12,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =========================
+// Clean label for urgency/priority (remove "1 - ")
+// =========================
+const cleanLabel = (value) => {
+    if (!value) return "";
+    return value.includes(" - ")
+        ? value.split(" - ")[1]
+        : value;
+};
+
+// =========================
 // FETCH + RENDER TABLE
 // =========================
 async function fetchTickets() {
@@ -22,6 +32,9 @@ async function fetchTickets() {
     tbody.innerHTML = "";
 
     tickets.forEach(t => {
+        const priorityLabel = cleanLabel(t.priority);
+        const urgencyLabel = cleanLabel(t.urgency);
+
         tbody.innerHTML += `
             <tr>
                 <td>${t.ticket_id}</td>
@@ -29,8 +42,8 @@ async function fetchTickets() {
                 <td>${t.title}</td>
                 <td>${t.requested_by}</td>
                 <td>${t.assigned_to || "Unassigned"}</td>
-                <td class="${t.priority}">${t.priority}</td>
-                <td class="${t.urgency}">${t.urgency}</td>
+                <td class="${priorityLabel}">${priorityLabel}</td>
+                <td class="${urgencyLabel}">${urgencyLabel}</td>
                 <td>${t.status}</td>
                 <td>
                     <button onclick="openModal(${t.ticket_id})">Details</button>

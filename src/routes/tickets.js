@@ -4,6 +4,29 @@ import db from '../db.js';
 const router = express.Router();
 
 // =========================
+// TIME NORMALIZER (FIX)
+// =========================
+function toISO(row) {
+    if (!row) return row;
+
+    const copy = { ...row };
+
+    if (copy.created_at) {
+        copy.created_at = new Date(copy.created_at + 'Z').toISOString();
+    }
+
+    if (copy.updated_at) {
+        copy.updated_at = new Date(copy.updated_at + 'Z').toISOString();
+    }
+
+    if (copy.closed_at) {
+        copy.closed_at = new Date(copy.closed_at + 'Z').toISOString();
+    }
+
+    return copy;
+}
+
+// =========================
 // CREATE A TICKET
 // =========================
 router.post('/tickets', (req, res) => {
@@ -45,7 +68,7 @@ router.post('/tickets', (req, res) => {
 });
 
 // =========================
-// GET ALL TICKETS
+// GET ALL TICKETS (FIXED)
 // =========================
 router.get('/tickets', (req, res) => {
     try {
@@ -54,15 +77,18 @@ router.get('/tickets', (req, res) => {
             ORDER BY created_at DESC
         `).all();
 
-        return res.json(tickets);
+        const normalized = tickets.map(toISO);
+
+        return res.json(normalized);
 
     } catch (err) {
+        console.error(err);
         return res.status(500).json({ error: 'Failed to fetch tickets' });
     }
 });
 
 // =========================
-// GET SINGLE TICKET + COMMENTS
+// GET SINGLE TICKET + COMMENTS (FIXED)
 // =========================
 router.get('/tickets/:id', (req, res) => {
     try {
@@ -72,29 +98,33 @@ router.get('/tickets/:id', (req, res) => {
             return res.status(400).json({ error: 'Invalid ticket ID' });
         }
 
-        const ticket = db.prepare(`
+        const ticketRaw = db.prepare(`
             SELECT * FROM tickets WHERE ticket_id = ?
         `).get(id);
 
-        if (!ticket) {
+        if (!ticketRaw) {
             return res.status(404).json({ error: 'Ticket not found' });
         }
 
-        const comments = db.prepare(`
+        const commentsRaw = db.prepare(`
             SELECT * FROM ticket_comments
             WHERE ticket_id = ?
             ORDER BY created_at ASC
         `).all(id);
 
+        const ticket = toISO(ticketRaw);
+        const comments = commentsRaw.map(toISO);
+
         return res.json({ ticket, comments });
 
     } catch (err) {
+        console.error(err);
         return res.status(500).json({ error: 'Failed to fetch ticket' });
     }
 });
 
 // =========================
-// UPDATE TICKET STATUS / ASSIGNMENT
+// UPDATE TICKET
 // =========================
 router.put('/tickets/:id', (req, res) => {
     try {
@@ -140,65 +170,13 @@ router.put('/tickets/:id', (req, res) => {
         return res.json({ message: 'Ticket updated successfully' });
 
     } catch (err) {
+        console.error(err);
         return res.status(500).json({ error: 'Failed to update ticket' });
     }
 });
 
 // =========================
-// UPDATE COMMENT / LOG
-// =========================
-router.put('/tickets/:ticketId/comments/:commentId', (req, res) => {
-    try {
-        if (!req.body) return res.status(400).json({ error: 'Request body must be JSON.' });
-
-        const ticketId = Number(req.params.ticketId);
-        const commentId = Number(req.params.commentId);
-
-        if (Number.isNaN(ticketId) || Number.isNaN(commentId)) {
-            return res.status(400).json({ error: 'Invalid ID' });
-        }
-
-        const { message, current_status, next_step, who } = req.body;
-
-        if (!message && !current_status && !next_step && !who) {
-            return res.status(400).json({ 
-                error: 'At least one field (message, current_status, next_step, who) is required.' 
-            });
-        }
-
-        const stmt = db.prepare(`
-            UPDATE ticket_comments
-            SET 
-                message = COALESCE(?, message),
-                current_status = COALESCE(?, current_status),
-                next_step = COALESCE(?, next_step),
-                who = COALESCE(?, who)
-            WHERE comment_id = ? AND ticket_id = ?
-        `);
-
-        const result = stmt.run(
-            message ?? null,
-            current_status ?? null,
-            next_step ?? null,
-            who ?? null,
-            commentId,
-            ticketId
-        );
-
-        if (result.changes === 0) {
-            return res.status(404).json({ error: 'Comment not found' });
-        }
-
-        return res.json({ message: 'Comment updated successfully' });
-
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Failed to update comment' });
-    }
-});
-
-// =========================
-// ADD COMMENT TO TICKET
+// ADD COMMENT
 // =========================
 router.post('/tickets/:id/comments', (req, res) => {
     try {
@@ -242,7 +220,7 @@ router.post('/tickets/:id/comments', (req, res) => {
 });
 
 // =========================
-// DELETE TICKET (CASCADE COMMENTS)
+// DELETE TICKET
 // =========================
 router.delete('/tickets/:id', (req, res) => {
     try {
@@ -263,6 +241,7 @@ router.delete('/tickets/:id', (req, res) => {
         return res.json({ message: 'Ticket deleted successfully' });
 
     } catch (err) {
+        console.error(err);
         return res.status(500).json({ error: 'Failed to delete ticket' });
     }
 });
