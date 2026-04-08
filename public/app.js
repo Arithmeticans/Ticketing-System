@@ -99,13 +99,11 @@ async function openModal(ticketId) {
     const data = await res.json();
 
     const t = data.ticket;
-    const comments = data.comments.slice().reverse(); // show latest first
+    const comments = data.comments.slice().reverse();
 
-    // Header
     document.getElementById("modal-title").textContent =
         `Ticket #${t.ticket_id} — ${t.title}`;
 
-    // Info
     document.getElementById("modal-info").innerHTML = `
         <div><b>Caller:</b> ${t.requested_by}</div>
         <div><b>Assigned:</b> ${t.assigned_to || "Unassigned"}</div>
@@ -115,12 +113,10 @@ async function openModal(ticketId) {
         <div><b>Created At:</b> ${formatTime(t.created_at)}</div>
     `;
 
-    // description
     document.getElementById("modal-desc").innerHTML = `
         <div><b>Description:</b> ${t.description || "-"}</div>
     `;
 
-    // Prefill
     document.getElementById("modal-assign").value = t.assigned_to || "";
     document.getElementById("modal-status").value = "";
 
