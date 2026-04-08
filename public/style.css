@@ -209,6 +209,7 @@ td:nth-child(7).Low {
     background: none;
     font-size: 20px;
     cursor: pointer;
+    color:#e74c3c;
 }
 
 .ticket-info-grid {
