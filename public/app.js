@@ -41,7 +41,7 @@ async function fetchTickets() {
                 <td>${formatTime(t.created_at)}</td>
                 <td>${t.title}</td>
                 <td>${t.requested_by}</td>
-                <td>${t.assigned_to || "Unassigned"}</td>
+                <td>${t.assigned_to || "To be assigned"}</td>
                 <td class="${priorityLabel}">${priorityLabel}</td>
                 <td class="${urgencyLabel}">${urgencyLabel}</td>
                 <td>${t.status}</td>
@@ -106,7 +106,7 @@ async function openModal(ticketId) {
 
     document.getElementById("modal-info").innerHTML = `
         <div><b>Caller:</b> ${t.requested_by}</div>
-        <div><b>Assigned:</b> ${t.assigned_to || "Unassigned"}</div>
+        <div><b>Person-in-Charge:</b> ${t.assigned_to || "To be assigned"}</div>
         <div><b>Priority:</b> ${t.priority}</div>
         <div><b>Status:</b> ${t.status}</div>
         <div><b>Urgency:</b> ${t.urgency}</div>
