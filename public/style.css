@@ -1,6 +1,10 @@
 /* =========================
    GLOBAL
 ========================= */
+* {
+    font-family: "Century Gothic", sans-serif;
+}
+
 body {
     margin: 0;
     background-color: rgb(207, 207, 255);
@@ -59,7 +63,7 @@ input, select {
 }
 
 #ct-title, #ct-caller, #ct-description {
-    width: 300px;
+    width: 294px;
 }
 
 button {
@@ -224,6 +228,16 @@ td:nth-child(7).Low {
 
 #log-update, #log-nextstep, #log-impact, #modal-assign {
     width: 242px;
+}
+
+#log-input {
+  width: 794px;
+  height: 69px;
+  border-radius: 15px;
+  resize: none;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
 }
 
 /* =========================

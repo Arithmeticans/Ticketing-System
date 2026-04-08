@@ -175,15 +175,34 @@ async function deleteTicket() {
 // =========================
 // ADD LOG (API)
 // =========================
-async function addLog() {
-    const message = document.getElementById("log-update").value;
-    const current_status = document.getElementById("log-impact").value;
-    const next_step = document.getElementById("log-nextstep").value;
+document.getElementById("log-input").addEventListener("input", function (e) {
+    let lines = e.target.value.split('\n');
 
-    if (!message || !current_status) {
-        alert("Message and status required");
-        return;
+    if (lines.length > 3) {
+        e.target.value = lines.slice(0, 3).join('\n');
     }
+});
+
+document.getElementById("log-input").addEventListener("keydown", function (e) {
+    const lines = this.value.split('\n');
+
+    if (e.key === "Enter" && lines.length >= 3) {
+        e.preventDefault();
+    }
+});
+
+async function addLog() {
+    const rawInput = document.getElementById("log-input").value;
+
+    let lines = rawInput.split('\n').map(line => line.trim());
+
+    while (lines.length < 3) {
+        lines.push("");
+    }
+
+    const message = lines[0] || "None";
+    const next_step = lines[1] || "None";
+    const current_status = lines[2] || "None";
 
     await fetch(`${API_BASE}/tickets/${activeTicketId}/comments`, {
         method: "POST",
