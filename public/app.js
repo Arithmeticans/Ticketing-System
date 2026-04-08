@@ -127,6 +127,8 @@ async function openModal(ticketId) {
     renderLogs(comments);
 
     document.getElementById("modal-backdrop").classList.add("open");
+
+    document.getElementById("modal-assign").value = "";
 }
 
 // =========================
@@ -156,6 +158,8 @@ async function saveTicketUpdate() {
 
     await openModal(activeTicketId);
     fetchTickets();
+
+    document.getElementById("modal-assign").value = "";
 }
 
 // =========================
@@ -192,7 +196,8 @@ document.getElementById("log-input").addEventListener("keydown", function (e) {
 });
 
 async function addLog() {
-    const rawInput = document.getElementById("log-input").value;
+    const inputEl = document.getElementById("log-input");
+    const rawInput = inputEl.value;
 
     let lines = rawInput.split('\n').map(line => line.trim());
 
@@ -209,6 +214,8 @@ async function addLog() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, current_status, next_step })
     });
+
+    inputEl.value = "";
 
     openModal(activeTicketId);
 }
